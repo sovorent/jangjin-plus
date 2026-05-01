@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────
+   JANGJIN Plus — design tokens (PRD §9.3, REQ-UX-05 / REQ-UX-06)
+   Tailwind v4 uses CSS-based config via @theme.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  --background: #f8fafc; /* Neutral — page background */
+  --foreground: #0f172a;
+  --surface: #ffffff;    /* Cards */
+
+  /* Brand palette */
+  --primary: #0f4c81;    /* Deep navy — buttons, links, headers */
+  --primary-foreground: #ffffff;
+  --secondary: #2b9eb3;  /* Teal — accents, active states */
+  --secondary-foreground: #ffffff;
+
+  /* Semantic */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger:  #dc2626;
+  --muted:   #64748b;
+  --border:  #e2e8f0;
+  --ring:    #0f4c81;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface:    var(--surface);
+  --color-primary:    var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:  var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-success:    var(--success);
+  --color-warning:    var(--warning);
+  --color-danger:     var(--danger);
+  --color-muted:      var(--muted);
+  --color-border:     var(--border);
+  --color-ring:       var(--ring);
+
+  /* Typography — PRD REQ-UX-06: Sarabun for Thai, Inter for English */
+  --font-sans: var(--font-inter), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+  --font-thai: var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  /* Base size 16, line height 1.6 — REQ-UX-06 */
+  font-size: 16px;
+  line-height: 1.6;
+}

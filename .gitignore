@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+
+# env files (never commit secrets)
+.env.local
+.env.*.local
+
+# OS / IDE
+.DS_Store
+*.tsbuildinfo
+
+# vercel
+.vercel
