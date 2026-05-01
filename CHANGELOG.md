@@ -31,3 +31,4 @@
 - Lint: Removed all unused imports and variables across components
 - **TCM tag constants** (`src/lib/constants/treatment-tags.ts`)
 - **`.env.example`** with Supabase env var placeholders
+- **Next.js i18n fix**: added `NextIntlClientProvider` to `src/app/layout.tsx` so `useTranslations()` works in client components
