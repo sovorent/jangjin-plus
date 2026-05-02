@@ -107,13 +107,16 @@ export function CheckinFlow({ patient, activeEnrollments }: Props) {
           total_thb: values.walkin_price_thb,
         },
       ];
-      invoiceData = JSON.stringify({
-        line_items: JSON.stringify(lineItems),
-        total_thb: values.walkin_price_thb.toString(),
-        payment_method: values.payment_method,
+      // Pass a plain object — Supabase JS serialises it as JSON for the JSONB parameter.
+      // Do NOT JSON.stringify here: a string value for a JSONB arg becomes a JSON string
+      // scalar in Postgres, so p_invoice_data->>'line_items' returns NULL.
+      invoiceData = {
+        line_items: lineItems,
+        total_thb: values.walkin_price_thb,
+        payment_method: values.payment_method ?? "cash",
         notes: null,
-        clinic_snapshot: JSON.stringify(clinicSnapshot),
-      });
+        clinic_snapshot: clinicSnapshot,
+      };
     }
 
     const { data, error } = await supabase.rpc("complete_checkin", {

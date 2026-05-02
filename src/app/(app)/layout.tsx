@@ -14,13 +14,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
+    <div className="flex min-h-screen" style={{ background: "var(--background)" }}>
       <Sidebar />
 
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <Header />
 
-        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           {children}
         </main>
       </div>

@@ -13,9 +13,21 @@ export default async function SettingsPage() {
     .single();
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">{t("title")}</h1>
-      <SettingsForm settings={data as ClinicSettings | null} />
+    <div className="px-7 md:px-8 py-6">
+      <div className="mb-6">
+        <h1
+          className="font-serif text-[20px] font-semibold"
+          style={{ color: "var(--foreground)" }}
+        >
+          ตั้งค่า
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+          {t("title")} · Settings
+        </p>
+      </div>
+      <div className="max-w-2xl">
+        <SettingsForm settings={data as ClinicSettings | null} />
+      </div>
     </div>
   );
 }

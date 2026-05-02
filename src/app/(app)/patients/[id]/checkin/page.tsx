@@ -28,17 +28,28 @@ export default async function CheckinPage({ params }: Props) {
   if (!patient) notFound();
 
   return (
-    <div className="max-w-xl">
-      <div className="flex items-center gap-2 mb-4">
-        <Link
-          href={`/patients/${id}`}
-          className="text-sm text-muted-foreground hover:text-gray-900 flex items-center gap-1"
+    <div className="px-6 md:px-8 py-6 max-w-xl">
+      {/* Back link */}
+      <Link
+        href={`/patients/${id}`}
+        className="inline-flex items-center gap-1 mb-5 text-[13px] font-thai transition-opacity hover:opacity-70"
+        style={{ color: "var(--text-muted)" }}
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+        {(patient as Patient).full_name ?? "Patient"}
+      </Link>
+
+      <div className="mb-6">
+        <h1
+          className="font-serif text-[22px] font-semibold"
+          style={{ color: "var(--foreground)" }}
         >
-          <ChevronLeft className="h-4 w-4" />
-          {(patient as Patient).full_name ?? "Patient"}
-        </Link>
+          {t("title")}
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+          Check-in · {(patient as Patient).full_name}
+        </p>
       </div>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">{t("title")}</h1>
 
       <CheckinFlow
         patient={patient as Patient}

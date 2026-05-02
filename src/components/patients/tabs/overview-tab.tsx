@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import type { Patient } from "@/types/supabase";
-import { Separator } from "@/components/ui/separator";
 
 interface Props {
   patient: Patient;
@@ -12,9 +11,25 @@ interface Props {
 function Row({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex flex-col sm:flex-row sm:gap-4">
-      <span className="text-sm text-muted-foreground w-40 shrink-0">{label}</span>
-      <span className="text-sm">{value}</span>
+    <div
+      className="grid items-start py-2.5"
+      style={{
+        gridTemplateColumns: "160px 1fr",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <span
+        className="text-[12px] uppercase tracking-wide"
+        style={{ color: "var(--text-muted)", paddingTop: "1px" }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-thai text-[14px]"
+        style={{ color: "var(--foreground)" }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -30,38 +45,57 @@ export function OverviewTab({ patient }: Props) {
   };
 
   const sourceMap: Record<string, string> = {
-    facebook: t("source_facebook"),
+    facebook: "Facebook",
     walk_in: t("source_walk_in"),
     referral: t("source_referral"),
     other: t("source_other"),
   };
 
   return (
-    <div className="rounded-lg border bg-white p-5 space-y-3">
+    <div
+      className="rounded-xl px-6 py-1"
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        boxShadow: "var(--shadow-sm)",
+      }}
+    >
       <Row label={t("full_name")} value={patient.full_name} />
       <Row label={t("nickname")} value={patient.nickname} />
       <Row label={t("phone")} value={patient.phone} />
       <Row label={t("line_id")} value={patient.line_id} />
       <Row
         label={t("date_of_birth")}
-        value={patient.date_of_birth ? format(new Date(patient.date_of_birth), "dd/MM/yyyy") : null}
+        value={
+          patient.date_of_birth
+            ? format(new Date(patient.date_of_birth), "dd/MM/yyyy")
+            : null
+        }
       />
       <Row
         label={t("gender")}
-        value={patient.gender ? genderMap[patient.gender] : null}
+        value={patient.gender ? genderMap[patient.gender] ?? patient.gender : null}
       />
       <Row
         label={t("source")}
-        value={patient.source ? sourceMap[patient.source] : null}
+        value={patient.source ? sourceMap[patient.source] ?? patient.source : null}
       />
+
       {patient.conditions_allergies && (
-        <>
-          <Separator />
-          <div className="space-y-1">
-            <span className="text-sm text-muted-foreground">{t("conditions_allergies")}</span>
-            <p className="text-sm whitespace-pre-wrap">{patient.conditions_allergies}</p>
+        <div className="py-3">
+          <div
+            className="text-[11px] uppercase tracking-wide mb-1.5"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {t("conditions_allergies")}
           </div>
-        </>
+          <p
+            className="font-thai text-[14px] whitespace-pre-wrap leading-relaxed"
+            style={{ color: "var(--foreground)" }}
+          >
+            {patient.conditions_allergies}
+          </p>
+        </div>
       )}
     </div>
   );

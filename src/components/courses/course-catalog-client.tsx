@@ -6,24 +6,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { CourseCatalog } from "@/types/supabase";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { CourseDialog } from "./course-dialog";
-import { MoreHorizontal } from "lucide-react";
 
 interface Props {
   initialCourses: CourseCatalog[];
@@ -31,7 +14,6 @@ interface Props {
 
 export function CourseCatalogClient({ initialCourses }: Props) {
   const t = useTranslations("courses");
-  const tCommon = useTranslations("common");
   const [courses, setCourses] = useState(initialCourses);
   const [filter, setFilter] = useState<"active" | "archived">("active");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -90,92 +72,159 @@ export function CourseCatalogClient({ initialCourses }: Props) {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-2">
-          <Button
-            variant={filter === "active" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilter("active")}
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div
+        className="px-7 md:px-8 pt-6 pb-4"
+        style={{ borderBottom: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h1
+              className="font-serif text-[20px] font-semibold"
+              style={{ color: "var(--foreground)" }}
+            >
+              โปรแกรม
+            </h1>
+            <p className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+              Course Catalog
+            </p>
+          </div>
+          <button
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold font-thai transition-opacity hover:opacity-90"
+            style={{ background: "var(--primary)", color: "#fff" }}
+            onClick={() => { setEditingCourse(null); setDialogOpen(true); }}
           >
-            {t("filter_active")}
-          </Button>
-          <Button
-            variant={filter === "archived" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilter("archived")}
-          >
-            {t("filter_archived")}
-          </Button>
+            <Plus className="w-3.5 h-3.5" />
+            เพิ่มโปรแกรมใหม่
+          </button>
         </div>
-        <Button
-          size="sm"
-          onClick={() => {
-            setEditingCourse(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          {t("new_course")}
-        </Button>
+
+        {/* Filter tabs */}
+        <div className="flex gap-1 mt-4">
+          {(["active", "archived"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className="px-4 py-1.5 rounded-lg text-[12px] font-thai transition-colors"
+              style={{
+                background: filter === f ? "var(--primary)" : "transparent",
+                color: filter === f ? "#fff" : "var(--text-secondary)",
+                border: `1px solid ${filter === f ? "var(--primary)" : "var(--border)"}`,
+                fontWeight: filter === f ? 600 : 400,
+              }}
+            >
+              {f === "active" ? "ใช้งาน" : "เก็บถาวร"}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("columns.name")}</TableHead>
-              <TableHead className="text-right">{t("columns.sessions")}</TableHead>
-              <TableHead className="text-right">{t("columns.price")}</TableHead>
-              <TableHead>{t("columns.status")}</TableHead>
-              <TableHead className="w-12" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  {t("no_courses")}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filtered.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell>
-                    <div className="font-medium">{course.name_en}</div>
-                    <div className="text-sm text-muted-foreground">{course.name_th}</div>
-                  </TableCell>
-                  <TableCell className="text-right">{course.total_sessions}</TableCell>
-                  <TableCell className="text-right">
-                    ฿{course.price_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell>
-                    {!course.is_active && (
-                      <Badge variant="secondary">{t("archived_badge")}</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(course)}>
-                          {tCommon("edit")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleArchiveToggle(course)}>
-                          {course.is_active ? t("archive") : t("unarchive")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      {/* Card grid */}
+      <div className="flex-1 overflow-y-auto px-7 md:px-8 py-5">
+        {filtered.length === 0 ? (
+          <div
+            className="py-16 text-center text-[13px] font-thai"
+            style={{ color: "var(--text-muted)" }}
+          >
+            ยังไม่มีโปรแกรม
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((course) => (
+              <div
+                key={course.id}
+                className="rounded-xl p-5 relative overflow-hidden"
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  boxShadow: "var(--shadow-sm)",
+                  opacity: course.is_active ? 1 : 0.65,
+                }}
+              >
+                {!course.is_active && (
+                  <div
+                    className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    style={{ background: "var(--surface-hover)", color: "var(--text-muted)" }}
+                  >
+                    ARCHIVED
+                  </div>
+                )}
+
+                {/* Top colour bar */}
+                <div
+                  className="h-[3px] rounded-sm mb-4"
+                  style={{ background: course.is_active ? "var(--primary)" : "var(--border)" }}
+                />
+
+                <div className="mb-3">
+                  <div
+                    className="font-thai text-[15px] font-semibold mb-0.5"
+                    style={{ color: "var(--foreground)" }}
+                  >
+                    {course.name_th || course.name_en}
+                  </div>
+                  <div className="text-[11px] tracking-wide" style={{ color: "var(--text-muted)" }}>
+                    {course.name_en}
+                  </div>
+                </div>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div
+                    className="rounded-lg p-2.5 text-center"
+                    style={{ background: "var(--background)" }}
+                  >
+                    <div
+                      className="font-serif text-[20px] font-bold"
+                      style={{ color: "var(--primary)" }}
+                    >
+                      {course.total_sessions}
+                    </div>
+                    <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                      ครั้ง / Sessions
+                    </div>
+                  </div>
+                  <div
+                    className="rounded-lg p-2.5 text-center"
+                    style={{ background: "var(--background)" }}
+                  >
+                    <div
+                      className="font-sans text-[16px] font-bold"
+                      style={{ color: "var(--gold)" }}
+                    >
+                      ฿{course.price_thb.toLocaleString("en")}
+                    </div>
+                    <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                      ราคา / Price
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(course)}
+                    className="flex-1 py-1.5 rounded-lg text-[12px] font-semibold font-thai transition-opacity hover:opacity-80"
+                    style={{ background: "var(--primary-light)", color: "var(--primary)" }}
+                  >
+                    แก้ไข
+                  </button>
+                  <button
+                    onClick={() => handleArchiveToggle(course)}
+                    className="flex-1 py-1.5 rounded-lg text-[12px] font-thai transition-opacity hover:opacity-80"
+                    style={{
+                      background: course.is_active ? "var(--warning-light)" : "var(--success-light)",
+                      color: course.is_active ? "var(--warning)" : "var(--success)",
+                    }}
+                  >
+                    {course.is_active ? "ซ่อน (Archive)" : "เปิดใช้งาน"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <CourseDialog
@@ -184,6 +233,6 @@ export function CourseCatalogClient({ initialCourses }: Props) {
         onClose={handleDialogClose}
         onSaved={handleSaved}
       />
-    </>
+    </div>
   );
 }

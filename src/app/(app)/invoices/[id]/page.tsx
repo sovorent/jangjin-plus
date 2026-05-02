@@ -24,18 +24,21 @@ export default async function InvoiceDetailPage({ params }: Props) {
   if (!invoice) notFound();
 
   return (
-    <div className="max-w-3xl">
-      <div className="flex items-center gap-2 mb-4">
-        <Link
-          href="/invoices"
-          className="text-sm text-muted-foreground hover:text-gray-900 flex items-center gap-1"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {t("title")}
-        </Link>
-      </div>
+    <div className="px-6 md:px-8 py-6 max-w-3xl">
+      <Link
+        href="/invoices"
+        className="inline-flex items-center gap-1 mb-5 text-[13px] font-thai transition-opacity hover:opacity-70"
+        style={{ color: "var(--text-muted)" }}
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+        {t("title")}
+      </Link>
 
-      <InvoiceDetailClient invoice={invoice as Invoice & { patients: Pick<Patient, "id" | "full_name" | "phone"> }} />
+      <InvoiceDetailClient
+        invoice={
+          invoice as Invoice & { patients: Pick<Patient, "id" | "full_name" | "phone"> }
+        }
+      />
     </div>
   );
 }

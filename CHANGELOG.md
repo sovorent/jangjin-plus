@@ -1,5 +1,33 @@
 # Changelog
 
+## [Unreleased] — Phase 1.5 UI Refresh
+
+### Fixed
+- **PDF export 500 error** (`invoice-template.tsx`, `route.ts`, `public/fonts/`): Google Fonts `.woff` CDN URLs returned 404. Fix applied in two phases: (1) downloaded Inter 400/600 and Sarabun 400/600 `.woff` to `public/fonts/`; (2) moved `Font.register()` out of module-top-level (Turbopack timing issue) — `registerFonts()` is now called explicitly inside the route handler, reads font files as `fs.readFileSync()` → base64 `data:font/woff;base64,...` data-URLs, and caches them in process scope. `@react-pdf/renderer` never performs any HTTP fetch.
+- **Invoice detail page alignment** (`invoice-detail-client.tsx`, `/invoices/[id]/page.tsx`): replaced shadcn `<Button>/<Badge>/<Separator>` with design-token-native styles; fixed null clinic name showing "—" by falling back to `"JangJin TCM Clinic"`; restructured two-column clinic/invoice-meta header; aligned table headers right for numeric columns; matched total+payment row to design system.
+- **Check-in walk-in invoice bug** (`checkin-flow.tsx`): `p_invoice_data` was being passed as `JSON.stringify(object)` — a plain string — which PostgreSQL receives as a JSONB *string scalar*; `p_invoice_data->>'line_items'` then returns NULL, violating the `NOT NULL` constraint on `invoices.line_items`. Fix: pass the plain JS object (no outer `JSON.stringify`); also removed inner `JSON.stringify(lineItems)` and `JSON.stringify(clinicSnapshot)` double-stringification, and changed `total_thb` from `.toString()` to the numeric value.
+- **Patient overview alignment** (`overview-tab.tsx`): replaced `flex + w-40` with `grid-cols-[160px_1fr]` CSS grid — labels and values now stay perfectly aligned at all widths; applied design-token border separators between rows
+- **Patient profile header** (`patient-profile-client.tsx`): replaced shadcn `<Button>`/`<Tabs>` with design-token-native buttons and a custom underline tab strip; avatar initials, serif name, bilingual sub-label; icon buttons (Edit2, CalendarCheck)
+- **Patient detail page** (`/patients/[id]/page.tsx`): removed `max-w-4xl`, added `px-6 py-6 max-w-3xl` + styled back-link using `var(--text-muted)`
+- **Check-in page** (`/patients/[id]/checkin/page.tsx`): updated heading to serif font + design-token back-link + bilingual sub-label
+- **Courses tab** (`courses-tab.tsx`): replaced shadcn `<Button>`/`<Badge>` with design-token styled button, status badge, and session progress bar
+- **Visits tab** (`visits-tab.tsx`): replaced shadcn `<Badge>` with design-token treatment tag chips; applied surface card style
+
+### Changed
+- **Design tokens** (`globals.css`): warm parchment palette (`#FAF8F4` bg, `#E8E2D8` border, `#1A1612` text), deep navy sidebar (`#0F1824`), gold accent (`#B8941F`), teal (`#2B9EB3`), full semantic token set with CSS custom properties
+- **Fonts** (`layout.tsx`): added `Noto Serif TC` (300/400/600/700) for Chinese-inspired serif headings via `--font-noto-serif-tc`
+- **Sidebar** (`sidebar.tsx`): deep navy background, Chinese monogram "張珍" + "Jangjin Plus" branding, bilingual nav labels (Thai primary + English subtext), gold active indicator, user avatar footer
+- **Bottom nav** (`bottom-nav.tsx`): deep navy background, gold icon accent for active items, Thai labels
+- **Mobile header** (`header.tsx`): deep navy background matching sidebar style
+- **App layout**: updated background to warm parchment, full-height overflow handling
+- **Nav items** (`nav-items.ts`): added Appointments route, static `labelTH`/`labelEN` bilingual labels
+- **Dashboard** (`dashboard/page.tsx`): 4-column stat cards with coloured dots + delta badges, recent invoices list with date/status, decorative monthly revenue bar chart, quick actions panel
+- **Patient list** (`patient-list-client.tsx`): avatar initials, bilingual table headers, teal Check-in / ghost Profile action buttons, inline search + filter tabs
+- **Courses** (`course-catalog-client.tsx`): card grid layout with colour top-bar, sessions/price stat boxes, archive toggle
+- **Invoices** (`invoice-list-client.tsx`): split-view — list sidebar with status badges + detail panel with invoice preview card and VOID watermark
+- **Appointments** (`appointments/page.tsx`): Phase 2 placeholder screen
+- **Settings** (`settings/page.tsx`): bilingual page header
+
 ## [Unreleased] — Phase 1 MVP Implementation
 
 ### Added
