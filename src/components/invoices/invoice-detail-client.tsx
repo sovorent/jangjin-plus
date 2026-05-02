@@ -112,8 +112,15 @@ export function InvoiceDetailClient({ invoice }: Props) {
             className="flex justify-between items-start pb-5 mb-5"
             style={{ borderBottom: "1px solid var(--border)" }}
           >
-            {/* Left: clinic info */}
+            {/* Left: logo + clinic info */}
             <div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="Clinic logo"
+                className="mb-3 object-contain"
+                style={{ maxHeight: 72, maxWidth: 160 }}
+              />
               <div
                 className="font-serif text-[15px] font-bold mb-0.5"
                 style={{ color: "var(--foreground)" }}
@@ -143,7 +150,7 @@ export function InvoiceDetailClient({ invoice }: Props) {
             </div>
 
             {/* Right: invoice meta */}
-            <div className="text-right">
+            <div className="text-right flex flex-col items-end">
               <div
                 className="text-[9px] uppercase tracking-widest mb-1"
                 style={{ color: "var(--text-muted)" }}

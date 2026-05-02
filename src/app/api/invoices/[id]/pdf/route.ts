@@ -52,10 +52,14 @@ export async function GET(
       invoice as { patients: { full_name: string | null; phone: string | null } }
     ).patients;
 
+    const logoPath = path.resolve(process.cwd(), "public", "logo.png");
+    const logoDataUrl = `data:image/png;base64,${fs.readFileSync(logoPath).toString("base64")}`;
+
     const element = React.createElement(InvoicePDF, {
       invoice: invoice as Invoice,
       patientName: patient?.full_name ?? "Patient",
       patientPhone: patient?.phone ?? null,
+      logoUrl: logoDataUrl,
     }) as unknown as ReactElement<DocumentProps>;
 
     const buffer = await renderToBuffer(element);

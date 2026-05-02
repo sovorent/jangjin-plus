@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 import type { Invoice, InvoiceLineItem, ClinicSnapshot } from "@/types/supabase";
 
@@ -59,8 +60,10 @@ const styles = StyleSheet.create({
     borderBottom: "1px solid #E8E2D8",
   },
   billLabel: { fontSize: 8, color: "#7A6F62", marginBottom: 3, letterSpacing: 0.5 },
-  billName: { fontSize: 11, fontWeight: 600, color: "#1A1612" },
+  billName: { fontSize: 11, fontWeight: 600, color: "#1A1612", fontFamily: "Sarabun" },
   billSubValue: { fontSize: 9, color: "#7A6F62", marginTop: 1 },
+  /* ── Logo ────────────────────────────────── */
+  logoImage: { width: 72, height: 72, objectFit: "contain", marginBottom: 8 },
   /* ── Table ────────────────────────────────── */
   tableHeader: {
     flexDirection: "row",
@@ -109,9 +112,10 @@ interface InvoicePDFProps {
   invoice: Invoice;
   patientName: string;
   patientPhone: string | null;
+  logoUrl?: string | null;
 }
 
-export function InvoicePDF({ invoice, patientName, patientPhone }: InvoicePDFProps) {
+export function InvoicePDF({ invoice, patientName, patientPhone, logoUrl }: InvoicePDFProps) {
   const snapshot: ClinicSnapshot = invoice.clinic_snapshot ?? {};
   const isVoided = invoice.status === "void";
 
@@ -131,6 +135,7 @@ export function InvoicePDF({ invoice, patientName, patientPhone }: InvoicePDFPro
         {/* Header */}
         <View style={styles.header}>
           <View>
+            {logoUrl && <Image src={logoUrl} style={[styles.logoImage, { marginBottom: 8 }]} />}
             <Text style={styles.clinicName}>{clinicNameEN}</Text>
             {clinicNameTH && <Text style={styles.clinicNameTH}>{clinicNameTH}</Text>}
             {snapshot.clinic_address_en && (
@@ -143,7 +148,7 @@ export function InvoicePDF({ invoice, patientName, patientPhone }: InvoicePDFPro
               <Text style={styles.clinicDetail}>Tax ID: {snapshot.clinic_tax_id}</Text>
             )}
           </View>
-          <View>
+          <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.invoiceLabel}>INVOICE</Text>
             <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
             <Text style={styles.invoiceDate}>{dateStr}</Text>
@@ -177,10 +182,12 @@ export function InvoicePDF({ invoice, patientName, patientPhone }: InvoicePDFPro
             </View>
             <Text style={styles.colQty}>{item.quantity}</Text>
             <Text style={styles.colUnitPrice}>
-              {"฿" + item.unit_price_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
+              <Text style={{ fontFamily: "Sarabun" }}>{"฿"}</Text>
+              {item.unit_price_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
             </Text>
             <Text style={styles.colTotal}>
-              {"฿" + item.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
+              <Text style={{ fontFamily: "Sarabun" }}>{"฿"}</Text>
+              {item.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
             </Text>
           </View>
         ))}
@@ -192,7 +199,8 @@ export function InvoicePDF({ invoice, patientName, patientPhone }: InvoicePDFPro
           <View style={styles.totalBlock}>
             <Text style={styles.totalLabel}>TOTAL</Text>
             <Text style={styles.totalValue}>
-              {"฿" + invoice.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
+              <Text style={{ fontFamily: "Sarabun" }}>{"฿"}</Text>
+              {invoice.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
             </Text>
           </View>
         </View>
