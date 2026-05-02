@@ -142,7 +142,8 @@
       "check_in_button": "Check-in",
       "sessions_remaining": "{remaining} of {total} sessions remaining",
       "enrolled_on": "Enrolled {date}",
-      "cancel_enrollment": "Cancel enrollment"
+      "cancel_enrollment": "Cancel enrollment",
+      "tab_appointments": "Appointments"
     },
     "delete": {
       "title": "Delete patient",
@@ -304,5 +305,48 @@
     "ui_language": "Default language",
     "save_success": "Settings saved.",
     "save_error": "Failed to save settings."
+  },
+  "appointments": {
+    "title": "Appointments",
+    "new_appointment": "New appointment",
+    "no_appointments": "No appointments yet.",
+    "no_appointments_day": "No appointments on this day.",
+    "status_scheduled": "Scheduled",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled",
+    "status_no_show": "No-show",
+    "tab_appointments": "Appointments",
+    "form": {
+      "title_create": "New appointment",
+      "title_edit": "Edit appointment",
+      "patient": "Patient",
+      "patient_placeholder": "Search patient…",
+      "date": "Date",
+      "time": "Time",
+      "duration_min": "Duration (min)",
+      "notes": "Notes",
+      "notes_placeholder": "Optional notes about this appointment",
+      "status": "Status",
+      "save_success": "Appointment saved.",
+      "save_error": "Failed to save appointment.",
+      "cancel_confirm": "Cancel this appointment?",
+      "cancel_success": "Appointment cancelled.",
+      "cancel_error": "Failed to cancel appointment.",
+      "noshow_confirm": "Mark as no-show?",
+      "noshow_success": "Marked as no-show.",
+      "noshow_error": "Failed to update appointment.",
+      "delete_confirm": "Delete this appointment?",
+      "delete_success": "Appointment deleted.",
+      "delete_error": "Failed to delete appointment."
+    },
+    "calendar": {
+      "today": "Today",
+      "select_day": "Select a day to view appointments"
+    },
+    "checkin": {
+      "link_prompt": "Link to today's appointment",
+      "linked": "Linked to appointment",
+      "none": "No appointment"
+    }
   }
 }

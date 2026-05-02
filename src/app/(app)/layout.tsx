@@ -13,9 +13,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const displayName =
+    (user.user_metadata?.full_name as string | undefined) ||
+    (user.user_metadata?.name as string | undefined) ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("") || "U";
+
   return (
     <div className="flex min-h-screen" style={{ background: "var(--background)" }}>
-      <Sidebar />
+      <Sidebar
+        displayName={displayName}
+        email={user.email ?? ""}
+        role={profile?.role ?? "staff"}
+        initials={initials}
+      />
 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <Header />

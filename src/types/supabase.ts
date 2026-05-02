@@ -149,3 +149,23 @@ export interface TreatmentLog {
   appointment_id: string | null;
   created_at: string;
 }
+
+// ── Phase 2 ────────────────────────────────────────────────
+
+export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+
+export interface Appointment {
+  id: string;
+  patient_id: string;
+  scheduled_date: string;
+  scheduled_time: string | null;
+  duration_min: number;
+  status: AppointmentStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppointmentWithPatient extends Appointment {
+  patients: Pick<Patient, "id" | "full_name" | "nickname" | "phone">;
+}

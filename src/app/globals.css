@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer base {
+  button, [role="button"] {
+    cursor: pointer;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────
    JANGJIN Plus — design tokens v2 (Phase 1.5 UI refresh)
    Warm parchment palette + deep navy sidebar + gold accent.

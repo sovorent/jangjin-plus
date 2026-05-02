@@ -7,7 +7,14 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "./nav-items";
 
-export function Sidebar() {
+interface SidebarProps {
+  displayName: string;
+  email: string;
+  role: string;
+  initials: string;
+}
+
+export function Sidebar({ displayName, email, role, initials }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,43 +32,28 @@ export function Sidebar() {
     >
       {/* Logo / Clinic name */}
       <div
-        className="flex items-center gap-2.5 px-5 py-6"
+        className="flex items-center gap-3 px-5 py-5"
         style={{ borderBottom: "1px solid var(--sidebar-border)" }}
       >
-        <div
-          className="w-9 h-9 min-w-9 rounded-lg flex items-center justify-center overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.10)" }}
-        >
-          <Image
-            src="/logo.png"
-            alt="Jangjin logo"
-            width={32}
-            height={32}
-            className="object-contain"
-            style={{ filter: "invert(1) brightness(2)" }}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
-          <span
-            className="font-serif text-sm font-bold leading-none"
-            style={{ color: "#C5A660" }}
-          >
-            張
-          </span>
-        </div>
+        <Image
+          src="/logo-white.png"
+          alt="Jangjin logo"
+          width={36}
+          height={36}
+          className="object-contain shrink-0"
+        />
         <div>
           <div
-            className="font-serif text-[13px] font-bold leading-tight tracking-wide"
+            className="text-[14px] font-bold tracking-wide leading-tight"
             style={{ color: "#FFFFFF" }}
           >
-            張珍
+            Jangjin Plus
           </div>
           <div
             className="text-[10px] tracking-widest uppercase mt-0.5"
-            style={{ color: "rgba(255,255,255,0.40)" }}
+            style={{ color: "rgba(255,255,255,0.35)" }}
           >
-            Jangjin Plus
+            คลินิกแพทย์แผนจีน
           </div>
         </div>
       </div>
@@ -128,26 +120,26 @@ export function Sidebar() {
         style={{ borderTop: "1px solid var(--sidebar-border)" }}
       >
         <div
-          className="w-8 h-8 min-w-8 rounded-full flex items-center justify-center font-serif text-[13px] font-semibold"
+          className="w-8 h-8 min-w-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0"
           style={{
             background: "rgba(197,166,96,0.25)",
             color: "#C5A660",
           }}
         >
-          จ
+          {initials}
         </div>
-        <div>
+        <div className="min-w-0">
           <div
-            className="font-thai text-[12px] font-semibold"
+            className="font-thai text-[12px] font-semibold truncate"
             style={{ color: "#FFFFFF" }}
           >
-            แพทย์จางจิน
+            {displayName}
           </div>
           <div
-            className="text-[10px]"
+            className="text-[10px] truncate"
             style={{ color: "rgba(255,255,255,0.35)" }}
           >
-            owner · ออกจากระบบ
+            {role} · ออกจากระบบ
           </div>
         </div>
       </button>

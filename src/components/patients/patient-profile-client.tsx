@@ -4,24 +4,27 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Edit2, CalendarCheck } from "lucide-react";
-import type { Patient, EnrollmentWithCourse, TreatmentLog, Invoice } from "@/types/supabase";
+import type { Patient, EnrollmentWithCourse, TreatmentLog, Invoice, Appointment } from "@/types/supabase";
 import { PatientForm } from "./patient-form";
 import { OverviewTab } from "./tabs/overview-tab";
 import { CoursesTab } from "./tabs/courses-tab";
 import { VisitsTab } from "./tabs/visits-tab";
 import { InvoicesTab } from "./tabs/invoices-tab";
+import { AppointmentsTab } from "@/components/appointments/appointments-tab";
 
 interface Props {
   patient: Patient;
   enrollments: EnrollmentWithCourse[];
   visits: TreatmentLog[];
   invoices: Invoice[];
+  appointments: Appointment[];
+  defaultDuration: number;
 }
 
-const TABS = ["overview", "courses", "visits", "invoices"] as const;
+const TABS = ["overview", "courses", "visits", "invoices", "appointments"] as const;
 type Tab = (typeof TABS)[number];
 
-export function PatientProfileClient({ patient, enrollments, visits, invoices }: Props) {
+export function PatientProfileClient({ patient, enrollments, visits, invoices, appointments, defaultDuration }: Props) {
   const t = useTranslations("patients.profile");
   const router = useRouter();
   const [currentPatient, setCurrentPatient] = useState(patient);
@@ -37,6 +40,7 @@ export function PatientProfileClient({ patient, enrollments, visits, invoices }:
     courses: t("tab_courses"),
     visits: t("tab_visits"),
     invoices: t("tab_invoices"),
+    appointments: t("tab_appointments"),
   };
 
   /* initials for avatar */
@@ -176,6 +180,13 @@ export function PatientProfileClient({ patient, enrollments, visits, invoices }:
           )}
           {activeTab === "visits" && <VisitsTab visits={visits} />}
           {activeTab === "invoices" && <InvoicesTab invoices={invoices} />}
+          {activeTab === "appointments" && (
+            <AppointmentsTab
+              patient={currentPatient}
+              appointments={appointments}
+              defaultDuration={defaultDuration}
+            />
+          )}
         </>
       )}
     </div>

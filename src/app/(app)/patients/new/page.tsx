@@ -7,7 +7,7 @@ export default async function NewPatientPage() {
   const t = await getTranslations("patients.form");
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl px-6 py-6">
       <div className="flex items-center gap-2 mb-6">
         <Link href="/patients" className="text-sm text-muted-foreground hover:text-gray-900 flex items-center gap-1">
           <ChevronLeft className="h-4 w-4" />

@@ -13,7 +13,23 @@
 - **Courses tab** (`courses-tab.tsx`): replaced shadcn `<Button>`/`<Badge>` with design-token styled button, status badge, and session progress bar
 - **Visits tab** (`visits-tab.tsx`): replaced shadcn `<Badge>` with design-token treatment tag chips; applied surface card style
 
+### Added — Phase 2: Appointments
+- **DB migration** (`supabase/migrations/002_phase2_appointments.sql`): `appointments` table with `appointment_status` enum, RLS, indexes; activated `treatment_logs.appointment_id` FK; extended `complete_checkin` RPC with `p_appointment_id` (auto-complete linked appointment) and `p_appt_duration_min` (create next appointment record)
+- **Types** (`src/types/supabase.ts`): `AppointmentStatus`, `Appointment`, `AppointmentWithPatient`
+- **i18n** (`messages/en.json`, `messages/th.json`): `appointments.*` namespace (form, calendar, checkin, status labels)
+- **AppointmentCard** (`src/components/appointments/appointment-card.tsx`): status badge, time/date, actions dropdown (edit/cancel/no-show/delete)
+- **AppointmentForm** (`src/components/appointments/appointment-form.tsx`): debounced patient search, date popover (react-day-picker), time + duration + notes; create and edit modes
+- **AppointmentsTab** (`src/components/appointments/appointments-tab.tsx`): patient profile tab with upcoming/past sections and inline new-appointment dialog
+- **AppointmentCalendar** (`src/components/appointments/appointment-calendar.tsx`): month grid with dots on days that have scheduled appointments, day-list panel, new appointment dialog
+- **Appointments page** (`src/app/(app)/appointments/page.tsx`): replaced placeholder with live calendar
+- **New appointment page** (`src/app/(app)/appointments/new/page.tsx`)
+- **Appointment detail page** (`src/app/(app)/appointments/[id]/page.tsx` + `appointment-detail-client.tsx`)
+- **Patient profile** (`patients/[id]/page.tsx`, `patient-profile-client.tsx`): added Appointments tab (5th tab); fetches patient appointments + clinic default duration
+- **Check-in integration** (`patients/[id]/checkin/page.tsx`, `checkin-flow.tsx`): queries today's scheduled appointment; shows link-to-appointment banner with checkbox; passes `p_appointment_id` to RPC to auto-complete the linked appointment
+
 ### Changed
+- **Sidebar user footer** (`sidebar.tsx`, `(app)/layout.tsx`): replaced hardcoded "แพทย์จางจิน / owner" with live data — app layout fetches `role` from the `users` table and derives `displayName`/`initials` from Supabase auth metadata (falls back to email prefix); sidebar now accepts these as props and renders them.
+- **Login page** (`(auth)/login/page.tsx`, `(auth)/layout.tsx`, `(auth)/reset-password/page.tsx`): reimplemented as split-panel layout — dark navy left branding panel (logo, clinic name, tagline, version footer) and warm cream right form panel with bilingual field labels (Thai primary + English secondary), inline show/hide password toggle ("แสดง"/"ซ่อน"), and full-width navy sign-in button. Auth layout simplified to passthrough; reset-password wraps itself.
 - **Design tokens** (`globals.css`): warm parchment palette (`#FAF8F4` bg, `#E8E2D8` border, `#1A1612` text), deep navy sidebar (`#0F1824`), gold accent (`#B8941F`), teal (`#2B9EB3`), full semantic token set with CSS custom properties
 - **Fonts** (`layout.tsx`): added `Noto Serif TC` (300/400/600/700) for Chinese-inspired serif headings via `--font-noto-serif-tc`
 - **Sidebar** (`sidebar.tsx`): deep navy background, Chinese monogram "張珍" + "Jangjin Plus" branding, bilingual nav labels (Thai primary + English subtext), gold active indicator, user avatar footer

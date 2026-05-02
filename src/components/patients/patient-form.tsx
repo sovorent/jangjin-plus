@@ -212,16 +212,16 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="conditions_allergies">{t("conditions_allergies")}</Label>
-        <Textarea
-          id="conditions_allergies"
-          rows={3}
-          placeholder={t("conditions_allergies_placeholder")}
-          {...register("conditions_allergies")}
-        />
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="conditions_allergies">{t("conditions_allergies")}</Label>
+          <Textarea
+            id="conditions_allergies"
+            rows={3}
+            placeholder={t("conditions_allergies_placeholder")}
+            {...register("conditions_allergies")}
+          />
+        </div>
       </div>
 
       <div className="flex gap-3">

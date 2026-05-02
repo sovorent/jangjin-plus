@@ -24,6 +24,14 @@ const resetSchema = z.object({
 });
 type ResetValues = z.infer<typeof resetSchema>;
 
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4">
+      <div className="w-full max-w-sm">{children}</div>
+    </div>
+  );
+}
+
 export default function ResetPasswordPage() {
   const t = useTranslations("auth.reset_password");
   const [sent, setSent] = useState(false);
@@ -44,54 +52,58 @@ export default function ResetPasswordPage() {
 
   if (sent) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">{t("title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-sm text-muted-foreground">{t("success")}</p>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <Link href="/login" className="text-sm text-[#0F4C81] hover:underline">
-            {t("back_to_login")}
-          </Link>
-        </CardFooter>
-      </Card>
+      <PageWrapper>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">{t("title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-sm text-muted-foreground">{t("success")}</p>
+          </CardContent>
+          <CardFooter className="justify-center">
+            <Link href="/login" className="text-sm text-[#0F4C81] hover:underline">
+              {t("back_to_login")}
+            </Link>
+          </CardFooter>
+        </Card>
+      </PageWrapper>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-xl text-center">{t("title")}</CardTitle>
-        <CardDescription className="text-center">{t("subtitle")}</CardDescription>
-      </CardHeader>
+    <PageWrapper>
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-xl text-center">{t("title")}</CardTitle>
+          <CardDescription className="text-center">{t("subtitle")}</CardDescription>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">{t("email")}</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-600">{errors.email.message}</p>
-            )}
-          </div>
-        </CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">{t("email")}</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-xs text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+          </CardContent>
 
-        <CardFooter className="flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? t("submitting") : t("submit")}
-          </Button>
-          <Link href="/login" className="text-sm text-[#0F4C81] hover:underline">
-            {t("back_to_login")}
-          </Link>
-        </CardFooter>
-      </form>
-    </Card>
+          <CardFooter className="flex-col gap-3">
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? t("submitting") : t("submit")}
+            </Button>
+            <Link href="/login" className="text-sm text-[#0F4C81] hover:underline">
+              {t("back_to_login")}
+            </Link>
+          </CardFooter>
+        </form>
+      </Card>
+    </PageWrapper>
   );
 }

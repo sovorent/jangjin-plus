@@ -142,7 +142,8 @@
       "check_in_button": "เช็กอิน",
       "sessions_remaining": "เหลือ {remaining} จาก {total} ครั้ง",
       "enrolled_on": "สมัครเมื่อ {date}",
-      "cancel_enrollment": "ยกเลิกโปรแกรม"
+      "cancel_enrollment": "ยกเลิกโปรแกรม",
+      "tab_appointments": "นัดหมาย"
     },
     "delete": {
       "title": "ลบคนไข้",
@@ -304,5 +305,48 @@
     "ui_language": "ภาษาเริ่มต้น",
     "save_success": "บันทึกการตั้งค่าแล้ว",
     "save_error": "ไม่สามารถบันทึกการตั้งค่าได้"
+  },
+  "appointments": {
+    "title": "นัดหมาย",
+    "new_appointment": "นัดหมายใหม่",
+    "no_appointments": "ยังไม่มีนัดหมาย",
+    "no_appointments_day": "ไม่มีนัดหมายในวันนี้",
+    "status_scheduled": "รอพบ",
+    "status_completed": "เสร็จสิ้น",
+    "status_cancelled": "ยกเลิก",
+    "status_no_show": "ไม่มา",
+    "tab_appointments": "นัดหมาย",
+    "form": {
+      "title_create": "นัดหมายใหม่",
+      "title_edit": "แก้ไขนัดหมาย",
+      "patient": "คนไข้",
+      "patient_placeholder": "ค้นหาคนไข้…",
+      "date": "วันที่",
+      "time": "เวลา",
+      "duration_min": "ระยะเวลา (นาที)",
+      "notes": "หมายเหตุ",
+      "notes_placeholder": "หมายเหตุเกี่ยวกับการนัดหมาย (ไม่บังคับ)",
+      "status": "สถานะ",
+      "save_success": "บันทึกนัดหมายแล้ว",
+      "save_error": "ไม่สามารถบันทึกนัดหมายได้",
+      "cancel_confirm": "ยกเลิกนัดหมายนี้?",
+      "cancel_success": "ยกเลิกนัดหมายแล้ว",
+      "cancel_error": "ไม่สามารถยกเลิกนัดหมายได้",
+      "noshow_confirm": "ทำเครื่องหมายว่าไม่มา?",
+      "noshow_success": "บันทึกว่าไม่มาแล้ว",
+      "noshow_error": "ไม่สามารถอัปเดตนัดหมายได้",
+      "delete_confirm": "ลบนัดหมายนี้?",
+      "delete_success": "ลบนัดหมายแล้ว",
+      "delete_error": "ไม่สามารถลบนัดหมายได้"
+    },
+    "calendar": {
+      "today": "วันนี้",
+      "select_day": "เลือกวันเพื่อดูนัดหมาย"
+    },
+    "checkin": {
+      "link_prompt": "เชื่อมกับนัดหมายวันนี้",
+      "linked": "เชื่อมกับนัดหมายแล้ว",
+      "none": "ไม่มีนัดหมาย"
+    }
   }
 }

@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import type { Patient, EnrollmentWithCourse } from "@/types/supabase";
+import { format } from "date-fns";
+import type { Patient, EnrollmentWithCourse, Appointment } from "@/types/supabase";
 import { CheckinFlow } from "@/components/checkin/checkin-flow";
 
 interface Props {
@@ -15,7 +16,9 @@ export default async function CheckinPage({ params }: Props) {
   const t = await getTranslations("checkin");
   const supabase = await createClient();
 
-  const [{ data: patient }, { data: enrollments }] = await Promise.all([
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const [{ data: patient }, { data: enrollments }, { data: todayAppointment }] = await Promise.all([
     supabase.from("patients").select("*").eq("id", id).single(),
     supabase
       .from("enrollments")
@@ -23,6 +26,13 @@ export default async function CheckinPage({ params }: Props) {
       .eq("patient_id", id)
       .eq("status", "active")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("appointments")
+      .select("*")
+      .eq("patient_id", id)
+      .eq("status", "scheduled")
+      .eq("scheduled_date", today)
+      .maybeSingle(),
   ]);
 
   if (!patient) notFound();
@@ -54,6 +64,7 @@ export default async function CheckinPage({ params }: Props) {
       <CheckinFlow
         patient={patient as Patient}
         activeEnrollments={(enrollments ?? []) as EnrollmentWithCourse[]}
+        todayAppointment={(todayAppointment as Appointment | null) ?? undefined}
       />
     </div>
   );

@@ -9,7 +9,7 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import type { Patient, EnrollmentWithCourse, TreatmentTag } from "@/types/supabase";
+import type { Patient, EnrollmentWithCourse, TreatmentTag, Appointment } from "@/types/supabase";
 import { TREATMENT_TAGS } from "@/lib/constants/treatment-tags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,10 +41,12 @@ type Step2Values = z.infer<typeof step2Schema>;
 interface Props {
   patient: Patient;
   activeEnrollments: EnrollmentWithCourse[];
+  todayAppointment?: Appointment;
 }
 
-export function CheckinFlow({ patient, activeEnrollments }: Props) {
+export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Props) {
   const t = useTranslations("checkin");
+  const tAppt = useTranslations("appointments.checkin");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
@@ -56,6 +58,7 @@ export function CheckinFlow({ patient, activeEnrollments }: Props) {
     activeEnrollments.length === 1 ? activeEnrollments[0] : null
   );
   const [selectedTags, setSelectedTags] = useState<TreatmentTag[]>([]);
+  const [linkAppointment, setLinkAppointment] = useState(!!todayAppointment);
 
   const {
     register,
@@ -122,15 +125,17 @@ export function CheckinFlow({ patient, activeEnrollments }: Props) {
     const { data, error } = await supabase.rpc("complete_checkin", {
       p_patient_id: patient.id,
       p_enrollment_id: visitType === "enrollment" ? selectedEnrollment?.id ?? null : null,
-      p_visit_date: values.visit_date,
+      p_visit_date: values.visit_date || format(new Date(), "yyyy-MM-dd"),
       p_treatment_tags: selectedTags,
       p_treatment_notes: values.treatment_notes ?? null,
       p_herbs_prescribed: values.herbs_prescribed ?? null,
       p_doctor_notes: values.doctor_notes ?? null,
-      p_next_appt_date: values.next_appointment_date ?? null,
-      p_next_appt_time: values.next_appointment_time ?? null,
+      p_next_appt_date: values.next_appointment_date || null,
+      p_next_appt_time: values.next_appointment_time || null,
       p_walkin_price_thb: visitType === "walkin" ? values.walkin_price_thb ?? null : null,
       p_invoice_data: invoiceData,
+      p_appointment_id: (linkAppointment && todayAppointment) ? todayAppointment.id : null,
+      p_appt_duration_min: null,
     });
 
     if (error) {
@@ -322,6 +327,30 @@ export function CheckinFlow({ patient, activeEnrollments }: Props) {
       </div>
 
       <Separator />
+
+      {/* Link to today's appointment banner */}
+      {todayAppointment && (
+        <div
+          className="flex items-center justify-between rounded-lg px-4 py-3"
+          style={{ background: "var(--primary-light)", border: "1px solid rgba(15,76,129,0.2)" }}
+        >
+          <div>
+            <p className="text-[13px] font-semibold" style={{ color: "var(--primary)" }}>
+              {tAppt("link_prompt")}
+            </p>
+            <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+              {todayAppointment.scheduled_time?.slice(0, 5) ?? ""}
+              {todayAppointment.notes ? ` · ${todayAppointment.notes}` : ""}
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={linkAppointment}
+            onChange={(e) => setLinkAppointment(e.target.checked)}
+            className="w-4 h-4 accent-[#0F4C81]"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">

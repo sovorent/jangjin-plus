@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import type { Patient, EnrollmentWithCourse, TreatmentLog, Invoice } from "@/types/supabase";
+import type { Patient, EnrollmentWithCourse, TreatmentLog, Invoice, Appointment } from "@/types/supabase";
 import { PatientProfileClient } from "@/components/patients/patient-profile-client";
 
 interface Props {
@@ -15,25 +15,37 @@ export default async function PatientProfilePage({ params }: Props) {
   const t = await getTranslations("patients");
   const supabase = await createClient();
 
-  const [{ data: patient }, { data: enrollments }, { data: visits }, { data: invoices }] =
-    await Promise.all([
-      supabase.from("patients").select("*").eq("id", id).single(),
-      supabase
-        .from("enrollments")
-        .select("*, course_catalog(*)")
-        .eq("patient_id", id)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("treatment_logs")
-        .select("*")
-        .eq("patient_id", id)
-        .order("visit_date", { ascending: false }),
-      supabase
-        .from("invoices")
-        .select("*")
-        .eq("patient_id", id)
-        .order("created_at", { ascending: false }),
-    ]);
+  const [
+    { data: patient },
+    { data: enrollments },
+    { data: visits },
+    { data: invoices },
+    { data: appointments },
+    { data: settings },
+  ] = await Promise.all([
+    supabase.from("patients").select("*").eq("id", id).single(),
+    supabase
+      .from("enrollments")
+      .select("*, course_catalog(*)")
+      .eq("patient_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("treatment_logs")
+      .select("*")
+      .eq("patient_id", id)
+      .order("visit_date", { ascending: false }),
+    supabase
+      .from("invoices")
+      .select("*")
+      .eq("patient_id", id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("appointments")
+      .select("*")
+      .eq("patient_id", id)
+      .order("scheduled_date", { ascending: false }),
+    supabase.from("clinic_settings").select("default_appt_duration_min").single(),
+  ]);
 
   if (!patient) notFound();
 
@@ -54,6 +66,8 @@ export default async function PatientProfilePage({ params }: Props) {
         enrollments={(enrollments ?? []) as EnrollmentWithCourse[]}
         visits={(visits ?? []) as TreatmentLog[]}
         invoices={(invoices ?? []) as Invoice[]}
+        appointments={(appointments ?? []) as Appointment[]}
+        defaultDuration={settings?.default_appt_duration_min ?? 60}
       />
     </div>
   );
