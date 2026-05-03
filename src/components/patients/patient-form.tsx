@@ -26,6 +26,8 @@ const patientSchema = z
     gender: z.enum(["male", "female", "other", "prefer_not_to_say"]).optional(),
     conditions_allergies: z.string().optional(),
     source: z.enum(["facebook", "walk_in", "referral", "other"]).optional(),
+    patient_number: z.string().optional(),
+    id_card_number: z.string().optional(),
   })
   .refine((d) => d.full_name?.trim() || d.phone?.trim(), {
     message: "validation_identity",
@@ -61,6 +63,8 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
       gender: (patient?.gender as Gender) ?? undefined,
       conditions_allergies: patient?.conditions_allergies ?? "",
       source: (patient?.source as PatientSource) ?? undefined,
+      patient_number: patient?.patient_number ?? "",
+      id_card_number: patient?.id_card_number ?? "",
     },
   });
 
@@ -93,6 +97,8 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
       gender: values.gender ?? null,
       conditions_allergies: values.conditions_allergies || null,
       source: values.source ?? null,
+      patient_number: values.patient_number || null,
+      id_card_number: values.id_card_number || null,
     };
 
     if (patient) {
@@ -201,6 +207,22 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
           />
         </div>
 
+        <div className="space-y-1.5">
+          <Label htmlFor="patient_number">{t("patient_number")}</Label>
+          <Input
+            id="patient_number"
+            placeholder={t("patient_number_placeholder")}
+            {...register("patient_number")}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="id_card_number">{t("id_card_number")}</Label>
+          <Input
+            id="id_card_number"
+            placeholder={t("id_card_number_placeholder")}
+            {...register("id_card_number")}
+          />
+        </div>
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="conditions_allergies">{t("conditions_allergies")}</Label>
           <Textarea

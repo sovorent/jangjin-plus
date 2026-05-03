@@ -2,6 +2,12 @@
 
 ## [Unreleased] — Phase 1.5 UI Refresh
 
+### Added
+- **Medical Certificate PDF** (`medical-cert-template.tsx`, `api/treatment-logs/[id]/certificate/route.ts`): new bilingual ใบรับรองการตรวจรักษา / Medical Certification PDF generated server-side after every check-in. Includes clinic header (logo, Thai+English name, address), cert ref number, Buddhist Era date, bilingual doctor statement with license number, patient details (gender, age, patient number, national ID, visit date), TCM diagnosis from treatment_notes, blank recommendation lines, and dual signature block.
+- **Check-in success screen** (`checkin-flow.tsx`): after check-in completes, shows a success screen with Download Certificate, Download Invoice (if applicable), and Back to Patient buttons — replaces the immediate redirect.
+- **Patient fields: patient_number + id_card_number** (`patients` table, `patient-form.tsx`, `supabase.ts`): new optional free-text fields for patient registration number and national ID; both shown on the medical certificate.
+- **Clinic settings: doctor English name + license** (`clinic_settings` table, `settings-form.tsx`, `supabase.ts`): `clinic_doctor_name_en` and `clinic_doctor_license` fields for use in the medical certificate bilingual doctor statement.
+
 ### Changed
 - **Invoice redesign — Thai-first layout** (`invoice-template.tsx`, `invoice-detail-client.tsx`, `invoice-list-client.tsx`): full redesign of both PDF and web invoice views to match traditional Thai receipt format. Logo and clinic info centered at top; title "ใบเสร็จรับเงิน/Receipt" centered; เลขที่/วันที่ right-aligned with Buddhist Era date (CE+543, Thai month name); patient displayed as "ชื่อ คุณ [name]"; 5-column table (ลำดับ/รายการ/จำนวน/หน่วย/ราคา) with amounts without ฿ symbol; total row labelled "รวมทั้งสิ้น"; signature block (วันที่/ผู้รับเงิน) at bottom. Invoice list preview panel updated to match.
 - **Walk-in invoice line item descriptions** (`checkin-flow.tsx`, `treatment-tags.ts`): line items now use the actual treatment tags selected during check-in (e.g. "ฝังเข็ม ครอบแก้ว") instead of the generic "รักษา Walk-in". Added `TREATMENT_TAG_LABELS_TH` and `TREATMENT_TAG_LABELS_EN` exports to the treatment-tags constants. Unit changed from "visit" to "ครั้ง".

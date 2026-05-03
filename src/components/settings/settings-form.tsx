@@ -22,6 +22,8 @@ const settingsSchema = z.object({
   clinic_phone: z.string().nullable().optional(),
   clinic_tax_id: z.string().nullable().optional(),
   clinic_doctor_name: z.string().nullable().optional(),
+  clinic_doctor_name_en: z.string().nullable().optional(),
+  clinic_doctor_license: z.string().nullable().optional(),
   invoice_prefix: z.string().min(1).max(10),
   ui_language_default: z.enum(["en", "th"]),
 });
@@ -50,6 +52,8 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       clinic_phone: settings?.clinic_phone ?? "",
       clinic_tax_id: settings?.clinic_tax_id ?? "",
       clinic_doctor_name: settings?.clinic_doctor_name ?? "",
+      clinic_doctor_name_en: settings?.clinic_doctor_name_en ?? "",
+      clinic_doctor_license: settings?.clinic_doctor_license ?? "",
       invoice_prefix: settings?.invoice_prefix ?? "JJ",
       ui_language_default: settings?.ui_language_default ?? "en",
     },
@@ -106,6 +110,14 @@ export function SettingsForm({ settings }: SettingsFormProps) {
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="clinic_doctor_name">{t("clinic_doctor_name")}</Label>
             <Input id="clinic_doctor_name" {...register("clinic_doctor_name")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="clinic_doctor_name_en">{t("clinic_doctor_name_en")}</Label>
+            <Input id="clinic_doctor_name_en" {...register("clinic_doctor_name_en")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="clinic_doctor_license">{t("clinic_doctor_license")}</Label>
+            <Input id="clinic_doctor_license" {...register("clinic_doctor_license")} />
           </div>
         </div>
       </section>

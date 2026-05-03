@@ -39,6 +39,8 @@ export interface ClinicSettings {
   clinic_tax_id: string | null;
   clinic_logo_url: string | null;
   clinic_doctor_name: string | null;
+  clinic_doctor_name_en: string | null;
+  clinic_doctor_license: string | null;
   invoice_prefix: string;
   default_appt_duration_min: number;
   ui_language_default: Locale;
@@ -58,6 +60,8 @@ export interface Patient {
   conditions_allergies: string | null;
   source: PatientSource | null;
   photo_url: string | null;
+  patient_number: string | null;
+  id_card_number: string | null;
   created_at: string;
   updated_at: string;
 }

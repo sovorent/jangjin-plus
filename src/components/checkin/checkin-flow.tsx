@@ -44,7 +44,7 @@ export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Pr
   const tCommon = useTranslations("common");
   const router = useRouter();
 
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | "done">(1);
   const [visitType, setVisitType] = useState<VisitType>(
     activeEnrollments.length > 0 ? "enrollment" : "walkin"
   );
@@ -53,6 +53,7 @@ export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Pr
   );
   const [selectedTags, setSelectedTags] = useState<TreatmentTag[]>([]);
   const [linkAppointment, setLinkAppointment] = useState(!!todayAppointment);
+  const [doneResult, setDoneResult] = useState<{ treatmentLogId: string; invoiceId: string | null } | null>(null);
 
   const {
     register,
@@ -155,7 +156,52 @@ export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Pr
       toast.success(t("success"));
     }
 
-    router.push(`/patients/${patient.id}`);
+    setDoneResult({ treatmentLogId: result.treatment_log_id, invoiceId: result.invoice_id });
+    setStep("done");
+  }
+
+  // ── Done: success screen ──────────────────────────────────
+  if (step === "done" && doneResult) {
+    return (
+      <div className="space-y-5">
+        <div className="rounded-lg p-5 text-center" style={{ background: "var(--success-light)", border: "1px solid rgba(22,163,74,0.2)" }}>
+          <p className="text-[17px] font-semibold font-thai" style={{ color: "var(--success)" }}>
+            ✓ {t("checkin_complete")}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => window.open(`/api/treatment-logs/${doneResult.treatmentLogId}/certificate`, "_blank")}
+            className="w-full py-3 rounded-lg text-[14px] font-semibold font-thai transition-opacity hover:opacity-80"
+            style={{ background: "var(--primary)", color: "#fff" }}
+          >
+            {t("cert_download")}
+          </button>
+
+          {doneResult.invoiceId && (
+            <button
+              type="button"
+              onClick={() => window.open(`/api/invoices/${doneResult.invoiceId}/pdf`, "_blank")}
+              className="w-full py-3 rounded-lg text-[14px] font-thai transition-colors hover:opacity-80"
+              style={{ background: "var(--primary-light)", color: "var(--primary)", border: "1px solid var(--border)" }}
+            >
+              {t("invoice_download")}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => router.push(`/patients/${patient.id}`)}
+            className="w-full py-3 rounded-lg text-[14px] font-thai transition-colors hover:bg-gray-100"
+            style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+          >
+            {t("back_to_patient")}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // ── Step 1: Visit type selection ──────────────────────────
