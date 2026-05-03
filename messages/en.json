@@ -298,6 +298,7 @@
     "clinic_address_en": "Address (English)",
     "clinic_phone": "Phone number",
     "clinic_tax_id": "Tax ID (เลขประจำตัวผู้เสียภาษี)",
+    "clinic_doctor_name": "Doctor / Practitioner name (shown on invoice)",
     "clinic_logo": "Clinic logo",
     "clinic_logo_upload": "Upload logo",
     "invoice_prefix": "Invoice prefix",

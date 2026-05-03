@@ -19,6 +19,7 @@
 | Patient CRM — list, search, create, edit, profile | ✅ Done |
 | Course Catalog — create, archive templates | ✅ Done |
 | Enrollment — enroll patient, auto-generate invoice | ✅ Done |
+| Invoice redesign — Thai-first layout, Buddhist Era date, doctor name, treatment tag descriptions | ✅ Done |
 | Check-in / Treatment Log — 2-step flow, tags, herbs, doctor notes | ✅ Done |
 | Invoice PDF — bilingual, clinic snapshot, void watermark | ✅ Done |
 | Settings — clinic info, invoice prefix, default language | ✅ Done |
@@ -59,6 +60,8 @@
 > What is currently being built. Keep to 5 items max.
 
 *(nothing in progress)*
+
+
 
 ---
 

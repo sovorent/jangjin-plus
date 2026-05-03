@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { Patient, EnrollmentWithCourse, TreatmentTag, Appointment } from "@/types/supabase";
-import { TREATMENT_TAGS } from "@/lib/constants/treatment-tags";
+import { TREATMENT_TAGS, TREATMENT_TAG_LABELS_TH, TREATMENT_TAG_LABELS_EN } from "@/lib/constants/treatment-tags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,16 +90,23 @@ export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Pr
       clinic_phone: settings?.clinic_phone ?? null,
       clinic_tax_id: settings?.clinic_tax_id ?? null,
       clinic_logo_url: settings?.clinic_logo_url ?? null,
+      clinic_doctor_name: settings?.clinic_doctor_name ?? null,
     };
 
     let invoiceData = null;
     if (visitType === "walkin" && values.walkin_price_thb) {
+      const descTH = selectedTags.length > 0
+        ? selectedTags.map((tag) => TREATMENT_TAG_LABELS_TH[tag] ?? tag).join(" ")
+        : "รักษา Walk-in";
+      const descEN = selectedTags.length > 0
+        ? selectedTags.map((tag) => TREATMENT_TAG_LABELS_EN[tag] ?? tag).join(", ")
+        : "Walk-in Treatment";
       const lineItems = [
         {
-          description_th: "รักษา Walk-in",
-          description_en: "Walk-in Treatment",
+          description_th: descTH,
+          description_en: descEN,
           quantity: 1,
-          unit: "visit",
+          unit: "ครั้ง",
           unit_price_thb: values.walkin_price_thb,
           total_thb: values.walkin_price_thb,
         },

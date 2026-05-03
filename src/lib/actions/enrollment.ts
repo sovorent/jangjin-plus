@@ -32,6 +32,7 @@ export async function createEnrollment(params: EnrollParams) {
     clinic_phone: settings?.clinic_phone ?? null,
     clinic_tax_id: settings?.clinic_tax_id ?? null,
     clinic_logo_url: settings?.clinic_logo_url ?? null,
+    clinic_doctor_name: settings?.clinic_doctor_name ?? null,
   };
 
   const prefix = settings?.invoice_prefix ?? "JJ";

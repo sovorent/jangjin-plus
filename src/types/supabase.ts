@@ -38,6 +38,7 @@ export interface ClinicSettings {
   clinic_phone: string | null;
   clinic_tax_id: string | null;
   clinic_logo_url: string | null;
+  clinic_doctor_name: string | null;
   invoice_prefix: string;
   default_appt_duration_min: number;
   ui_language_default: Locale;
@@ -109,6 +110,7 @@ export interface ClinicSnapshot {
   clinic_phone: string | null;
   clinic_tax_id: string | null;
   clinic_logo_url: string | null;
+  clinic_doctor_name?: string | null;
 }
 
 export interface Invoice {

@@ -1,15 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { format } from "date-fns";
 import { Download, XCircle } from "lucide-react";
 import type { InvoiceWithPatient, InvoiceStatus } from "@/types/supabase";
 import { VoidInvoiceDialog } from "./void-invoice-dialog";
 
 interface Props {
   initialInvoices: InvoiceWithPatient[];
+}
+
+const THAI_MONTHS = [
+  "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+  "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+  "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม",
+];
+
+function toBuddhistDate(isoDate: string): string {
+  const d = new Date(isoDate);
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+function fmt(n: number): string {
+  return n.toLocaleString("en", { minimumFractionDigits: 2 });
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -34,7 +47,6 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function InvoiceListClient({ initialInvoices }: Props) {
-  const t = useTranslations("invoices");
   const [invoices, setInvoices] = useState(initialInvoices);
   const [filter, setFilter] = useState<"all" | InvoiceStatus>("all");
   const [selected, setSelected] = useState<InvoiceWithPatient | null>(null);
@@ -44,44 +56,39 @@ export function InvoiceListClient({ initialInvoices }: Props) {
     filter === "all" ? invoices : invoices.filter((inv) => inv.status === filter);
 
   const filters: { key: "all" | InvoiceStatus; label: string }[] = [
-    { key: "all", label: "ทั้งหมด" },
+    { key: "all",  label: "ทั้งหมด" },
     { key: "paid", label: "ชำระแล้ว" },
     { key: "void", label: "โมฆะ" },
   ];
 
-  const snapshot = selected?.clinic_snapshot as unknown as Record<string, string> | null;
+  const snapshot = selected?.clinic_snapshot;
   const isVoided = selected?.status === "void";
+
+  const clinicName = snapshot?.clinic_name_th ?? snapshot?.clinic_name_en ?? "จางจิน คลินิก";
+  const address = snapshot?.clinic_address_th ?? snapshot?.clinic_address_en ?? null;
+  const addressLine = [address, snapshot?.clinic_phone ? `โทร.${snapshot.clinic_phone}` : null]
+    .filter(Boolean).join("  ");
+  const doctorLine = [snapshot?.clinic_doctor_name, snapshot?.clinic_tax_id ? `TAX ID ${snapshot.clinic_tax_id}` : null]
+    .filter(Boolean).join("  ");
 
   return (
     <div className="flex h-full">
-      {/* Left: list */}
+      {/* ── Left: invoice list ── */}
       <div
-        className="w-[380px] min-w-[340px] flex flex-col"
+        className="w-[360px] min-w-[320px] flex flex-col"
         style={{ borderRight: "1px solid var(--border)" }}
       >
         {/* List header */}
-        <div
-          className="px-5 pt-5 pb-3"
-          style={{ borderBottom: "1px solid var(--border)" }}
-        >
+        <div className="px-5 pt-5 pb-3" style={{ borderBottom: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div
-                className="font-serif text-[18px] font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <div className="font-serif text-[18px] font-semibold" style={{ color: "var(--foreground)" }}>
                 ใบเสร็จ
               </div>
               <div className="text-[11px] tracking-wide" style={{ color: "var(--text-muted)" }}>
                 Invoices
               </div>
             </div>
-            <button
-              className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold font-thai transition-opacity hover:opacity-90"
-              style={{ background: "var(--primary)", color: "#fff" }}
-            >
-              + สร้างใหม่
-            </button>
           </div>
 
           {/* Filter tabs */}
@@ -109,15 +116,12 @@ export function InvoiceListClient({ initialInvoices }: Props) {
         {/* List rows */}
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <div
-              className="py-12 text-center text-[13px] font-thai"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <div className="py-12 text-center text-[13px] font-thai" style={{ color: "var(--text-muted)" }}>
               ยังไม่มีใบเสร็จ
             </div>
           ) : (
             filtered.map((inv) => {
-              const isSelected = selected?.id === inv.id;
+              const isSel = selected?.id === inv.id;
               return (
                 <button
                   key={inv.id}
@@ -125,34 +129,28 @@ export function InvoiceListClient({ initialInvoices }: Props) {
                   className="w-full px-5 py-3.5 text-left flex flex-col gap-1 transition-colors border-l-[3px]"
                   style={{
                     borderBottom: "1px solid var(--border)",
-                    background: isSelected ? "var(--primary-light)" : "transparent",
-                    borderLeftColor: isSelected ? "var(--primary)" : "transparent",
+                    background: isSel ? "var(--primary-light)" : "transparent",
+                    borderLeftColor: isSel ? "var(--primary)" : "transparent",
                   }}
                 >
                   <div className="flex items-center justify-between">
                     <span
                       className="font-sans text-[13px] font-bold tracking-wide"
-                      style={{ color: isSelected ? "var(--primary)" : "var(--foreground)" }}
+                      style={{ color: isSel ? "var(--primary)" : "var(--foreground)" }}
                     >
                       {inv.invoice_number}
                     </span>
                     <StatusBadge status={inv.status} />
                   </div>
-                  <div
-                    className="font-thai text-[13px]"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
+                  <div className="font-thai text-[13px]" style={{ color: "var(--text-secondary)" }}>
                     {inv.patients?.full_name ?? "—"}
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                      {format(new Date(inv.issue_date), "dd/MM/yyyy")}
+                      {toBuddhistDate(inv.issue_date)}
                     </span>
-                    <span
-                      className="font-sans text-[13px] font-semibold"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      ฿{inv.total_thb.toLocaleString("en")}
+                    <span className="font-sans text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
+                      {fmt(inv.total_thb)}
                     </span>
                   </div>
                 </button>
@@ -162,7 +160,7 @@ export function InvoiceListClient({ initialInvoices }: Props) {
         </div>
       </div>
 
-      {/* Right: detail */}
+      {/* ── Right: invoice preview ── */}
       <div className="flex-1 overflow-y-auto px-7 py-6">
         {!selected ? (
           <div
@@ -175,28 +173,33 @@ export function InvoiceListClient({ initialInvoices }: Props) {
           <div>
             {/* Toolbar */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1">
+              <div className="flex-1 flex items-center gap-3">
                 <div
                   className="font-serif text-[16px] font-semibold"
                   style={{ color: "var(--foreground)" }}
                 >
                   {selected.invoice_number}
                 </div>
-                <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                  {format(new Date(selected.issue_date), "dd/MM/yyyy")}
-                </div>
+                <StatusBadge status={selected.status} />
               </div>
+              <a
+                href={`/invoices/${selected.id}`}
+                className="text-[12px] font-thai hover:underline"
+                style={{ color: "var(--primary)" }}
+              >
+                เปิดหน้าเต็ม →
+              </a>
               {!isVoided && (
                 <>
                   <a
                     href={`/api/invoices/${selected.id}/pdf`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold font-thai transition-opacity hover:opacity-80"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-thai transition-opacity hover:opacity-80"
                     style={{ background: "var(--primary-light)", color: "var(--primary)" }}
                   >
                     <Download className="w-3.5 h-3.5" />
-                    ดาวน์โหลด PDF
+                    PDF
                   </a>
                   <button
                     onClick={() => setVoidOpen(true)}
@@ -204,7 +207,7 @@ export function InvoiceListClient({ initialInvoices }: Props) {
                     style={{ background: "var(--danger-light)", color: "var(--danger)" }}
                   >
                     <XCircle className="w-3.5 h-3.5" />
-                    โมฆะ (Void)
+                    โมฆะ
                   </button>
                 </>
               )}
@@ -212,7 +215,7 @@ export function InvoiceListClient({ initialInvoices }: Props) {
 
             {/* Invoice card */}
             <div
-              className="rounded-xl px-8 py-7 relative overflow-hidden"
+              className="rounded-xl relative overflow-hidden"
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--border)",
@@ -226,177 +229,151 @@ export function InvoiceListClient({ initialInvoices }: Props) {
                 >
                   <span
                     className="font-serif text-[64px] font-bold tracking-widest select-none"
-                    style={{ color: "rgba(220,38,38,0.12)" }}
+                    style={{ color: "rgba(220,38,38,0.10)" }}
                   >
                     VOID / โมฆะ
                   </span>
                 </div>
               )}
 
-              {/* Clinic header */}
-              <div
-                className="flex justify-between items-start mb-7 pb-5"
-                style={{ borderBottom: "1px solid var(--border)" }}
-              >
-                <div>
-                  <div
-                    className="font-serif text-[15px] font-bold"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    {snapshot?.clinic_name_th ?? "คลินิกจางจิน"}
+              <div className="px-8 py-8">
+                {/* Centered header */}
+                <div className="flex flex-col items-center text-center mb-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/logo.png"
+                    alt="Clinic logo"
+                    className="mb-3 object-contain"
+                    style={{ maxHeight: 64, maxWidth: 140 }}
+                  />
+                  <div className="font-thai text-[14px] font-bold mb-1" style={{ color: "var(--foreground)" }}>
+                    {clinicName}
                   </div>
-                  <div
-                    className="font-sans text-[12px]"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {snapshot?.clinic_name_en ?? "JangJin TCM Clinic"}
-                  </div>
-                  {snapshot?.clinic_address_th && (
-                    <div className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
-                      {snapshot.clinic_address_th}
+                  {addressLine && (
+                    <div className="font-thai text-[11px]" style={{ color: "var(--text-muted)" }}>
+                      {addressLine}
+                    </div>
+                  )}
+                  {doctorLine && (
+                    <div className="font-thai text-[11px]" style={{ color: "var(--text-muted)" }}>
+                      {doctorLine}
                     </div>
                   )}
                 </div>
-                <div className="text-right">
-                  <div
-                    className="font-serif text-[13px]"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    ใบเสร็จรับเงิน
-                  </div>
-                  <div
-                    className="font-sans text-[18px] font-extrabold tracking-wide"
-                    style={{ color: "var(--primary)" }}
-                  >
+
+                <div className="mb-4" style={{ borderBottom: "1px solid var(--border)" }} />
+
+                {/* Title */}
+                <div className="text-center font-thai text-[16px] font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+                  ใบเสร็จรับเงิน/Receipt
+                </div>
+
+                {/* Meta */}
+                <div className="flex flex-col items-end mb-4 gap-1">
+                  <div className="font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                    <span style={{ color: "var(--text-muted)" }}>เลขที่: </span>
                     {selected.invoice_number}
                   </div>
-                  <div className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>
-                    {format(new Date(selected.issue_date), "dd/MM/yyyy")}
+                  <div className="font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                    <span style={{ color: "var(--text-muted)" }}>วันที่: </span>
+                    {toBuddhistDate(selected.issue_date)}
                   </div>
                 </div>
-              </div>
 
-              {/* Patient */}
-              <div className="mb-6">
-                <div
-                  className="text-[10px] uppercase tracking-widest mb-1"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  ชื่อคนไข้ / Patient
+                {/* Patient */}
+                <div className="font-thai text-[13px] mb-5" style={{ color: "var(--foreground)" }}>
+                  ชื่อ คุณ{" "}
+                  <Link
+                    href={`/patients/${selected.patient_id}`}
+                    className="font-semibold hover:underline"
+                    style={{ color: "var(--foreground)" }}
+                  >
+                    {selected.patients?.full_name ?? "—"}
+                  </Link>
                 </div>
-                <Link
-                  href={`/patients/${selected.patient_id}`}
-                  className="font-thai text-[15px] font-semibold hover:underline"
-                  style={{ color: "var(--foreground)" }}
-                >
-                  {selected.patients?.full_name ?? "—"}
-                </Link>
-              </div>
 
-              {/* Line items */}
-              <table className="w-full border-collapse mb-5">
-                <thead>
-                  <tr style={{ background: "var(--background)" }}>
-                    {["#", "รายการ / Description", "จำนวน / Qty", "ราคา/หน่วย", "รวม"].map(
-                      (h) => (
+                {/* Table */}
+                <table className="w-full border-collapse mb-0">
+                  <thead>
+                    <tr style={{ background: "var(--background)", borderTop: "1px solid #888", borderBottom: "1px solid #888" }}>
+                      {[
+                        { label: "ลำดับ", align: "text-center", cls: "w-10" },
+                        { label: "รายการ",  align: "text-left",   cls: "" },
+                        { label: "จำนวน",  align: "text-center", cls: "w-14" },
+                        { label: "หน่วย",   align: "text-center", cls: "w-14" },
+                        { label: "ราคา",    align: "text-right",  cls: "w-20" },
+                      ].map(({ label, align, cls }) => (
                         <th
-                          key={h}
-                          className="px-2.5 py-2 text-[10px] uppercase tracking-wide font-medium text-left"
-                          style={{
-                            color: "var(--text-muted)",
-                            borderBottom: "1px solid var(--border)",
-                          }}
+                          key={label}
+                          className={`py-2 px-2 text-[11px] font-semibold font-thai ${align} ${cls}`}
+                          style={{ color: "var(--text-secondary)" }}
                         >
-                          {h}
+                          {label}
                         </th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {selected.line_items.map((item, i) => (
-                    <tr key={i}>
-                      <td
-                        className="px-2.5 py-3 text-[13px] text-center"
-                        style={{ color: "var(--text-muted)" }}
-                      >
-                        {i + 1}
-                      </td>
-                      <td className="px-2.5 py-3">
-                        <div
-                          className="font-thai text-[13px] font-semibold"
-                          style={{ color: "var(--foreground)" }}
-                        >
-                          {item.description_th || item.description_en}
-                        </div>
-                        <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                          {item.description_en}
-                        </div>
-                      </td>
-                      <td
-                        className="px-2.5 py-3 text-[13px]"
-                        style={{ color: "var(--foreground)" }}
-                      >
-                        {item.quantity}
-                      </td>
-                      <td
-                        className="px-2.5 py-3 font-sans text-[13px]"
-                        style={{ color: "var(--foreground)" }}
-                      >
-                        ฿{item.unit_price_thb.toLocaleString("en")}
-                      </td>
-                      <td
-                        className="px-2.5 py-3 font-sans text-[13px] font-semibold"
-                        style={{ color: "var(--foreground)" }}
-                      >
-                        ฿{item.total_thb.toLocaleString("en")}
-                      </td>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {selected.line_items.map((item, i) => (
+                      <tr key={i} style={{ borderBottom: "0.5px solid var(--border)" }}>
+                        <td className="py-3 px-2 text-center font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                          {i + 1}
+                        </td>
+                        <td className="py-3 px-2">
+                          <div className="font-thai text-[13px]" style={{ color: "var(--foreground)" }}>
+                            {item.description_th}
+                          </div>
+                          {item.description_en && (
+                            <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+                              {item.description_en}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-2 text-center text-[12px]" style={{ color: "var(--foreground)" }}>
+                          {item.quantity}
+                        </td>
+                        <td className="py-3 px-2 text-center font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                          {item.unit}
+                        </td>
+                        <td className="py-3 px-2 text-right font-sans text-[12px]" style={{ color: "var(--foreground)" }}>
+                          {fmt(item.total_thb)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-              {/* Total */}
-              <div
-                className="pt-3.5 flex justify-end"
-                style={{ borderTop: "1px solid var(--border)" }}
-              >
-                <div className="min-w-[200px]">
+                {/* Total */}
+                <div
+                  className="flex justify-end items-center gap-6 pt-3"
+                  style={{ borderTop: "1px solid #888" }}
+                >
+                  <span className="font-thai text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
+                    รวมทั้งสิ้น
+                  </span>
+                  <span className="font-sans text-[15px] font-bold w-20 text-right" style={{ color: "var(--foreground)" }}>
+                    {fmt(selected.total_thb)}
+                  </span>
+                </div>
+
+                {/* Void reason */}
+                {isVoided && selected.void_reason && (
                   <div
-                    className="flex justify-between mb-2"
+                    className="mt-4 pt-4 text-[12px] font-thai font-semibold"
+                    style={{ borderTop: "1px solid var(--border)", color: "var(--danger)" }}
                   >
-                    <span
-                      className="text-[12px] font-thai"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      ชำระโดย / Payment
-                    </span>
-                    <span
-                      className="text-[12px] font-thai"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {selected.payment_method === "cash"
-                        ? "เงินสด / Cash"
-                        : "QR PromptPay"}
-                    </span>
+                    Void reason: {selected.void_reason}
                   </div>
-                  <div
-                    className="flex justify-between items-center pt-2.5"
-                    style={{ borderTop: "1px solid var(--border)" }}
-                  >
-                    <span
-                      className="font-serif text-[14px] font-semibold"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      ยอดรวม / Total
-                    </span>
-                    <span
-                      className="font-sans text-[18px] font-extrabold"
-                      style={{ color: "var(--primary)" }}
-                    >
-                      ฿{selected.total_thb.toLocaleString("en")}.00
-                    </span>
-                  </div>
+                )}
+
+                {/* Signature block */}
+                <div className="flex justify-between mt-10">
+                  <span className="font-thai text-[12px]" style={{ color: "var(--text-secondary)" }}>
+                    วันที่ ............................................
+                  </span>
+                  <span className="font-thai text-[12px]" style={{ color: "var(--text-secondary)" }}>
+                    ผู้รับเงิน ............................................
+                  </span>
                 </div>
               </div>
             </div>

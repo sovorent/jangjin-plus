@@ -3,13 +3,27 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { format } from "date-fns";
 import { Download, XCircle } from "lucide-react";
 import type { Invoice, Patient } from "@/types/supabase";
 import { VoidInvoiceDialog } from "./void-invoice-dialog";
 
 interface Props {
   invoice: Invoice & { patients: Pick<Patient, "id" | "full_name" | "phone"> };
+}
+
+const THAI_MONTHS = [
+  "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+  "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+  "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม",
+];
+
+function toBuddhistDate(isoDate: string): string {
+  const d = new Date(isoDate);
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+function fmt(n: number): string {
+  return n.toLocaleString("en", { minimumFractionDigits: 2 });
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -41,13 +55,18 @@ export function InvoiceDetailClient({ invoice }: Props) {
   const snapshot = currentInvoice.clinic_snapshot;
   const isVoided = currentInvoice.status === "void";
 
-  // Graceful fallbacks when clinic settings are not yet configured
-  const clinicNameEN = snapshot?.clinic_name_en ?? "JangJin TCM Clinic";
-  const clinicNameTH = snapshot?.clinic_name_th ?? null;
+  const clinicName = snapshot?.clinic_name_th ?? snapshot?.clinic_name_en ?? "จางจิน คลินิก";
+  const address = snapshot?.clinic_address_th ?? snapshot?.clinic_address_en ?? null;
+  const addressLine = [address, snapshot?.clinic_phone ? `โทร.${snapshot.clinic_phone}` : null]
+    .filter(Boolean)
+    .join("  ");
+  const doctorLine = [snapshot?.clinic_doctor_name, snapshot?.clinic_tax_id ? `TAX ID ${snapshot.clinic_tax_id}` : null]
+    .filter(Boolean)
+    .join("  ");
 
   return (
     <div>
-      {/* ── Page header / toolbar ─────────────────────── */}
+      {/* ── Page toolbar ─────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1
@@ -105,179 +124,126 @@ export function InvoiceDetailClient({ invoice }: Props) {
           </div>
         )}
 
-        {/* Card body */}
-        <div className="px-8 py-7">
-          {/* ── Clinic + Invoice number ────────────── */}
-          <div
-            className="flex justify-between items-start pb-5 mb-5"
-            style={{ borderBottom: "1px solid var(--border)" }}
-          >
-            {/* Left: logo + clinic info */}
-            <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo.png"
-                alt="Clinic logo"
-                className="mb-3 object-contain"
-                style={{ maxHeight: 72, maxWidth: 160 }}
-              />
-              <div
-                className="font-serif text-[15px] font-bold mb-0.5"
-                style={{ color: "var(--foreground)" }}
-              >
-                {clinicNameEN}
-              </div>
-              {clinicNameTH && (
-                <div className="font-thai text-[12px]" style={{ color: "var(--text-muted)" }}>
-                  {clinicNameTH}
-                </div>
-              )}
-              {snapshot?.clinic_address_en && (
-                <div className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
-                  {snapshot.clinic_address_en}
-                </div>
-              )}
-              {snapshot?.clinic_phone && (
-                <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                  {snapshot.clinic_phone}
-                </div>
-              )}
-              {snapshot?.clinic_tax_id && (
-                <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                  Tax ID: {snapshot.clinic_tax_id}
-                </div>
-              )}
-            </div>
+        <div className="px-8 py-8">
 
-            {/* Right: invoice meta */}
-            <div className="text-right flex flex-col items-end">
-              <div
-                className="text-[9px] uppercase tracking-widest mb-1"
-                style={{ color: "var(--text-muted)" }}
-              >
-                Invoice
-              </div>
-              <div
-                className="font-sans text-[20px] font-extrabold"
-                style={{ color: "var(--primary)" }}
-              >
-                {currentInvoice.invoice_number}
-              </div>
-              <div className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
-                {format(new Date(currentInvoice.issue_date), "dd/MM/yyyy")}
-              </div>
+          {/* ── Centered header: logo + clinic info ── */}
+          <div className="flex flex-col items-center text-center mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="Clinic logo"
+              className="mb-3 object-contain"
+              style={{ maxHeight: 72, maxWidth: 160 }}
+            />
+            <div className="font-thai text-[14px] font-bold mb-1" style={{ color: "var(--foreground)" }}>
+              {clinicName}
             </div>
-          </div>
-
-          {/* ── Bill to ───────────────────────────── */}
-          <div
-            className="pb-5 mb-5"
-            style={{ borderBottom: "1px solid var(--border)" }}
-          >
-            <div
-              className="text-[10px] uppercase tracking-widest mb-1.5"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Bill to
-            </div>
-            <Link
-              href={`/patients/${currentInvoice.patient_id}`}
-              className="font-thai text-[15px] font-semibold hover:underline"
-              style={{ color: "var(--foreground)" }}
-            >
-              {currentInvoice.patients.full_name ?? "—"}
-            </Link>
-            {currentInvoice.patients.phone && (
-              <div className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>
-                {currentInvoice.patients.phone}
+            {addressLine && (
+              <div className="font-thai text-[11px]" style={{ color: "var(--text-muted)" }}>
+                {addressLine}
+              </div>
+            )}
+            {doctorLine && (
+              <div className="font-thai text-[11px]" style={{ color: "var(--text-muted)" }}>
+                {doctorLine}
               </div>
             )}
           </div>
 
-          {/* ── Line items table ──────────────────── */}
+          {/* Divider */}
+          <div className="mb-4" style={{ borderBottom: "1px solid var(--border)" }} />
+
+          {/* ── Title ── */}
+          <div className="text-center font-thai text-[17px] font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+            ใบเสร็จรับเงิน/Receipt
+          </div>
+
+          {/* ── Invoice meta — right-aligned ── */}
+          <div className="flex flex-col items-end mb-4 gap-1">
+            <div className="font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+              <span style={{ color: "var(--text-muted)" }}>เลขที่: </span>
+              {currentInvoice.invoice_number}
+            </div>
+            <div className="font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+              <span style={{ color: "var(--text-muted)" }}>วันที่: </span>
+              {toBuddhistDate(currentInvoice.issue_date)}
+            </div>
+          </div>
+
+          {/* ── Patient name ── */}
+          <div className="font-thai text-[13px] mb-5" style={{ color: "var(--foreground)" }}>
+            ชื่อ คุณ{" "}
+            <Link
+              href={`/patients/${currentInvoice.patient_id}`}
+              className="font-semibold hover:underline"
+              style={{ color: "var(--foreground)" }}
+            >
+              {currentInvoice.patients.full_name ?? "—"}
+            </Link>
+          </div>
+
+          {/* ── Line items table ── */}
           <table className="w-full border-collapse mb-0">
             <thead>
-              <tr style={{ background: "var(--background)" }}>
-                {["Description", "Qty", "Unit price", "Total"].map((h) => (
+              <tr style={{ background: "var(--background)", borderTop: "1px solid #888", borderBottom: "1px solid #888" }}>
+                {[
+                  { label: "ลำดับ", align: "text-center", width: "w-10" },
+                  { label: "รายการ", align: "text-left", width: "" },
+                  { label: "จำนวน", align: "text-center", width: "w-16" },
+                  { label: "หน่วย", align: "text-center", width: "w-16" },
+                  { label: "ราคา", align: "text-right", width: "w-24" },
+                ].map(({ label, align, width }) => (
                   <th
-                    key={h}
-                    className={`py-2 px-2.5 text-[10px] uppercase tracking-wide font-medium ${
-                      h === "Description" ? "text-left" : "text-right"
-                    }`}
-                    style={{
-                      color: "var(--text-muted)",
-                      borderBottom: "1px solid var(--border)",
-                    }}
+                    key={label}
+                    className={`py-2 px-2 text-[11px] font-semibold font-thai ${align} ${width}`}
+                    style={{ color: "var(--text-secondary)" }}
                   >
-                    {h}
+                    {label}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {currentInvoice.line_items.map((item, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td className="py-3 px-2.5">
-                    <div
-                      className="font-thai text-[13px] font-semibold"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {item.description_en}
+                <tr key={i} style={{ borderBottom: "0.5px solid var(--border)" }}>
+                  <td className="py-3 px-2 text-center font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                    {i + 1}
+                  </td>
+                  <td className="py-3 px-2">
+                    <div className="font-thai text-[13px]" style={{ color: "var(--foreground)" }}>
+                      {item.description_th}
                     </div>
-                    {item.description_th && (
+                    {item.description_en && (
                       <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                        {item.description_th}
+                        {item.description_en}
                       </div>
                     )}
                   </td>
-                  <td
-                    className="py-3 px-2.5 text-right text-[13px]"
-                    style={{ color: "var(--foreground)" }}
-                  >
+                  <td className="py-3 px-2 text-center text-[12px]" style={{ color: "var(--foreground)" }}>
                     {item.quantity}
                   </td>
-                  <td
-                    className="py-3 px-2.5 text-right font-sans text-[13px]"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    ฿{item.unit_price_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
+                  <td className="py-3 px-2 text-center font-thai text-[12px]" style={{ color: "var(--foreground)" }}>
+                    {item.unit}
                   </td>
-                  <td
-                    className="py-3 px-2.5 text-right font-sans text-[13px] font-semibold"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    ฿{item.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
+                  <td className="py-3 px-2 text-right font-sans text-[12px]" style={{ color: "var(--foreground)" }}>
+                    {fmt(item.total_thb)}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* ── Total + payment ────────────────────── */}
+          {/* ── Total ── */}
           <div
-            className="pt-4 mt-0 flex justify-between items-end"
-            style={{ borderTop: "1px solid var(--border)" }}
+            className="flex justify-end items-center gap-6 pt-3 mt-0"
+            style={{ borderTop: "1px solid #888" }}
           >
-            <div className="text-[13px] font-thai" style={{ color: "var(--text-secondary)" }}>
-              <span style={{ color: "var(--text-muted)" }}>ชำระโดย / Payment: </span>
-              <span className="font-semibold">
-                {currentInvoice.payment_method === "cash" ? "เงินสด / Cash" : "QR PromptPay"}
-              </span>
-            </div>
-            <div className="text-right">
-              <div
-                className="text-[10px] uppercase tracking-widest mb-1"
-                style={{ color: "var(--text-muted)" }}
-              >
-                Total
-              </div>
-              <div
-                className="font-sans text-[22px] font-extrabold"
-                style={{ color: "var(--primary)" }}
-              >
-                ฿{currentInvoice.total_thb.toLocaleString("en", { minimumFractionDigits: 2 })}
-              </div>
-            </div>
+            <span className="font-thai text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
+              รวมทั้งสิ้น
+            </span>
+            <span className="font-sans text-[15px] font-bold w-24 text-right" style={{ color: "var(--foreground)" }}>
+              {fmt(currentInvoice.total_thb)}
+            </span>
           </div>
 
           {/* Notes */}
@@ -299,6 +265,17 @@ export function InvoiceDetailClient({ invoice }: Props) {
               Void reason: {currentInvoice.void_reason}
             </div>
           )}
+
+          {/* ── Signature block ── */}
+          <div className="flex justify-between mt-10 pt-2">
+            <span className="font-thai text-[12px]" style={{ color: "var(--text-secondary)" }}>
+              วันที่ ............................................
+            </span>
+            <span className="font-thai text-[12px]" style={{ color: "var(--text-secondary)" }}>
+              ผู้รับเงิน ............................................
+            </span>
+          </div>
+
         </div>
       </div>
 

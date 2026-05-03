@@ -2,6 +2,13 @@
 
 ## [Unreleased] — Phase 1.5 UI Refresh
 
+### Changed
+- **Invoice redesign — Thai-first layout** (`invoice-template.tsx`, `invoice-detail-client.tsx`, `invoice-list-client.tsx`): full redesign of both PDF and web invoice views to match traditional Thai receipt format. Logo and clinic info centered at top; title "ใบเสร็จรับเงิน/Receipt" centered; เลขที่/วันที่ right-aligned with Buddhist Era date (CE+543, Thai month name); patient displayed as "ชื่อ คุณ [name]"; 5-column table (ลำดับ/รายการ/จำนวน/หน่วย/ราคา) with amounts without ฿ symbol; total row labelled "รวมทั้งสิ้น"; signature block (วันที่/ผู้รับเงิน) at bottom. Invoice list preview panel updated to match.
+- **Walk-in invoice line item descriptions** (`checkin-flow.tsx`, `treatment-tags.ts`): line items now use the actual treatment tags selected during check-in (e.g. "ฝังเข็ม ครอบแก้ว") instead of the generic "รักษา Walk-in". Added `TREATMENT_TAG_LABELS_TH` and `TREATMENT_TAG_LABELS_EN` exports to the treatment-tags constants. Unit changed from "visit" to "ครั้ง".
+
+### Added
+- **Doctor/practitioner name on invoices** (`003_clinic_doctor_name.sql`, `supabase.ts`, `settings-form.tsx`, `enrollment.ts`, `checkin-flow.tsx`): new `clinic_doctor_name` field on `clinic_settings` table. Stored in `clinic_snapshot` on every invoice. Displayed as "[doctor name]  TAX ID [tax_id]" on the third line of the clinic header in both PDF and web views. Configurable via Settings page.
+
 ### Fixed
 - **Dropdown/popover z-index inside dialogs** (`select.tsx`, `popover.tsx`, `appointment-form.tsx`): all Select and Popover portals were rendering behind Dialog content because both shared `z-50`. Bumped `SelectContent` and `PopoverContent` to `z-[9999]`; also replaced the appointment date Popover with an inline absolutely-positioned calendar to avoid portal ordering issues.
 - **All select dropdowns rendering behind page content** (`simple-select.tsx`, `patient-form.tsx`, `checkin-flow.tsx`, `enroll-dialog.tsx`, `settings-form.tsx`, `appointment-form.tsx`): replaced all Radix UI Select instances with a custom `SimpleSelect` component that uses `ReactDOM.createPortal` + `getBoundingClientRect()` to render a `position: fixed` dropdown directly in `document.body`, escaping all CSS stacking contexts. Background set to `bg-white` (concrete value) because the `bg-popover` CSS variable did not resolve correctly inside the portal, making the dropdown appear transparent/invisible despite being correctly layered on top.

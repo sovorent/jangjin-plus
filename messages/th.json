@@ -298,6 +298,7 @@
     "clinic_address_en": "ที่อยู่ (ภาษาอังกฤษ)",
     "clinic_phone": "เบอร์โทรศัพท์",
     "clinic_tax_id": "เลขประจำตัวผู้เสียภาษี",
+    "clinic_doctor_name": "ชื่อแพทย์ / ผู้ประกอบโรคศิลปะ (แสดงบนใบเสร็จ)",
     "clinic_logo": "โลโก้คลินิก",
     "clinic_logo_upload": "อัปโหลดโลโก้",
     "invoice_prefix": "คำนำหน้าใบเสร็จ",
