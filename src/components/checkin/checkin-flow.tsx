@@ -15,13 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/simple-select";
 import { Separator } from "@/components/ui/separator";
 
 type VisitType = "enrollment" | "walkin";
@@ -250,18 +244,14 @@ export function CheckinFlow({ patient, activeEnrollments, todayAppointment }: Pr
           </div>
           <div className="space-y-1.5">
             <Label>{t("payment_method")}</Label>
-            <Select
+            <SimpleSelect
               defaultValue="cash"
               onValueChange={(v) => setValue("payment_method", v as "cash" | "qr_promptpay")}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">{tCommon("cash")}</SelectItem>
-                <SelectItem value="qr_promptpay">{tCommon("qr_promptpay")}</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { value: "cash", label: tCommon("cash") },
+                { value: "qr_promptpay", label: tCommon("qr_promptpay") },
+              ]}
+            />
           </div>
         </div>
       )}

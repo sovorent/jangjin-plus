@@ -13,14 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { SimpleSelect } from "@/components/ui/simple-select";
 
 const patientSchema = z
   .object({
@@ -175,20 +169,17 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
         </div>
         <div className="space-y-1.5">
           <Label>{t("gender")}</Label>
-          <Select
-            defaultValue={patient?.gender ?? undefined}
+          <SimpleSelect
+            defaultValue={patient?.gender ?? ""}
             onValueChange={(v) => setValue("gender", v as Gender)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={tCommon("optional")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">{t("gender_male")}</SelectItem>
-              <SelectItem value="female">{t("gender_female")}</SelectItem>
-              <SelectItem value="other">{t("gender_other")}</SelectItem>
-              <SelectItem value="prefer_not_to_say">{t("gender_prefer_not")}</SelectItem>
-            </SelectContent>
-          </Select>
+            placeholder={tCommon("optional")}
+            options={[
+              { value: "male", label: t("gender_male") },
+              { value: "female", label: t("gender_female") },
+              { value: "other", label: t("gender_other") },
+              { value: "prefer_not_to_say", label: t("gender_prefer_not") },
+            ]}
+          />
         </div>
       </div>
 
@@ -197,20 +188,17 @@ export function PatientForm({ patient, onSaved }: PatientFormProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label>{t("source")}</Label>
-          <Select
-            defaultValue={patient?.source ?? undefined}
+          <SimpleSelect
+            defaultValue={patient?.source ?? ""}
             onValueChange={(v) => setValue("source", v as PatientSource)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={tCommon("optional")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="facebook">{t("source_facebook")}</SelectItem>
-              <SelectItem value="walk_in">{t("source_walk_in")}</SelectItem>
-              <SelectItem value="referral">{t("source_referral")}</SelectItem>
-              <SelectItem value="other">{t("source_other")}</SelectItem>
-            </SelectContent>
-          </Select>
+            placeholder={tCommon("optional")}
+            options={[
+              { value: "facebook", label: t("source_facebook") },
+              { value: "walk_in", label: t("source_walk_in") },
+              { value: "referral", label: t("source_referral") },
+              { value: "other", label: t("source_other") },
+            ]}
+          />
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">

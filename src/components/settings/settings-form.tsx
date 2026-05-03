@@ -12,13 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/simple-select";
 
 const settingsSchema = z.object({
   clinic_name_th: z.string().nullable().optional(),
@@ -144,18 +138,15 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
         <div className="space-y-1.5">
           <Label>{t("ui_language")}</Label>
-          <Select
+          <SimpleSelect
             defaultValue={settings?.ui_language_default ?? "en"}
             onValueChange={(v) => setValue("ui_language_default", v as "en" | "th")}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="th">ภาษาไทย</SelectItem>
-            </SelectContent>
-          </Select>
+            className="w-48"
+            options={[
+              { value: "en", label: "English" },
+              { value: "th", label: "ภาษาไทย" },
+            ]}
+          />
         </div>
       </section>
 

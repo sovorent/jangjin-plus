@@ -14,13 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/simple-select";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
@@ -260,21 +254,11 @@ export function AppointmentForm({
         </div>
         <div className="space-y-1.5">
           <Label>{t("duration_min")}</Label>
-          <Select
+          <SimpleSelect
             defaultValue={String(appointment?.duration_min ?? defaultDuration)}
             onValueChange={(v) => setValue("duration_min", Number(v))}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[15, 30, 45, 60, 90, 120].map((m) => (
-                <SelectItem key={m} value={String(m)}>
-                  {m} min
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={[15, 30, 45, 60, 90, 120].map((m) => ({ value: String(m), label: `${m} min` }))}
+          />
         </div>
       </div>
 
@@ -282,20 +266,16 @@ export function AppointmentForm({
       {appointment && (
         <div className="space-y-1.5">
           <Label>{t("status")}</Label>
-          <Select
+          <SimpleSelect
             defaultValue={appointment.status}
             onValueChange={(v) => setValue("status", v as AppointmentStatus)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="scheduled">{tAppt("status_scheduled")}</SelectItem>
-              <SelectItem value="completed">{tAppt("status_completed")}</SelectItem>
-              <SelectItem value="cancelled">{tAppt("status_cancelled")}</SelectItem>
-              <SelectItem value="no_show">{tAppt("status_no_show")}</SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: "scheduled", label: tAppt("status_scheduled") },
+              { value: "completed", label: tAppt("status_completed") },
+              { value: "cancelled", label: tAppt("status_cancelled") },
+              { value: "no_show", label: tAppt("status_no_show") },
+            ]}
+          />
         </div>
       )}
 

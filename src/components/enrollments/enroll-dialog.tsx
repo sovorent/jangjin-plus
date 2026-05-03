@@ -21,13 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/simple-select";
 
 const enrollSchema = z.object({
   course_id: z.string().min(1),
@@ -126,18 +120,14 @@ export function EnrollDialog({ open, patient, onClose, onEnrolled }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label>{t("select_course")}</Label>
-            <Select onValueChange={handleCourseChange}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("select_course_placeholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name_en} ({c.total_sessions} sessions — ฿{c.price_thb.toLocaleString()})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SimpleSelect
+              onValueChange={handleCourseChange}
+              placeholder={t("select_course_placeholder")}
+              options={courses.map((c) => ({
+                value: c.id,
+                label: `${c.name_en} (${c.total_sessions} sessions — ฿${c.price_thb.toLocaleString()})`,
+              }))}
+            />
             {errors.course_id && <p className="text-xs text-red-600">{errors.course_id.message}</p>}
           </div>
 
@@ -161,18 +151,14 @@ export function EnrollDialog({ open, patient, onClose, onEnrolled }: Props) {
 
           <div className="space-y-1.5">
             <Label>{t("payment_method")}</Label>
-            <Select
+            <SimpleSelect
               defaultValue="cash"
               onValueChange={(v) => setValue("payment_method", v as "cash" | "qr_promptpay")}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">{tCommon("cash")}</SelectItem>
-                <SelectItem value="qr_promptpay">{tCommon("qr_promptpay")}</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { value: "cash", label: tCommon("cash") },
+                { value: "qr_promptpay", label: tCommon("qr_promptpay") },
+              ]}
+            />
           </div>
 
           <div className="space-y-1.5">
