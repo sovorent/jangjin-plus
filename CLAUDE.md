@@ -5,7 +5,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Instructions
 
 ## Changelog Requirements
-After every code change, append an entry to `CHANGELOG.md` 
+After every code change, append an entry to `CHANGELOG.md`
+
+## Project Tracking
+Maintain `PROJECT.md` as the single source of truth for features, active work, backlog, and issues. Keep it updated automatically — do not wait to be asked.
+
+Rules:
+- **New requirement from user** → add to the Backlog section as-is (preserve the user's wording)
+- **Starting work on a feature** → move from Backlog to Active Work, set status `In Progress`
+- **Feature completed** → mark `✅ Done` in Roadmap, remove from Active Work
+- **Bug discovered** → add a new row to Issue Log with status `Open`; fill Title, Root Cause (best guess), Date
+- **Bug fixed** → update the Issue Log row: status `✅ Resolved`, fill Root Cause (confirmed) and Solution
+
+**Workflow rule:** After making any code change, ask the user to test and confirm before updating the Issue Log to Resolved or before committing and pushing.
 
 ## Project Overview
 

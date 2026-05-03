@@ -70,6 +70,24 @@ src/
 └── types/                  # Shared TS types (incl. Supabase generated)
 ```
 
+## Project management
+
+This project uses a lightweight file-based tracking system — no external tools required.
+
+| File | Purpose |
+|------|---------|
+| [`PROJECT.md`](./PROJECT.md) | Feature roadmap, active work, backlog, and issue log |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Code-level change history, appended after every change |
+| [`CLAUDE.md`](./CLAUDE.md) | Instructions for Claude Code — kept as the authoritative dev guide |
+
+**Workflow:**
+1. Add new requirements or ideas to the **Backlog** section in `PROJECT.md` (free-form, any detail level)
+2. When work starts, the item moves to **Active Work**
+3. When done, it moves to the **Roadmap** as ✅ Done
+4. Bugs are logged in the **Issue Log** table with root cause and solution when resolved
+
+Claude Code maintains `PROJECT.md` automatically as work progresses.
+
 ## License
 
 Private — proprietary to JangJin TCM Clinic.
