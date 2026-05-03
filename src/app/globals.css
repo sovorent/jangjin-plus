@@ -103,3 +103,6 @@ body {
 
 /* Serif heading utility */
 .font-serif { font-family: var(--font-noto-serif-tc), var(--font-serif), ui-serif, serif; }
+
+/* Radix UI portal wrappers — must sit above all page content and dialogs */
+[data-radix-popper-content-wrapper] { z-index: 9999 !important; }
