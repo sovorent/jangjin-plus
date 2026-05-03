@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 const appointmentSchema = z.object({
@@ -68,7 +67,20 @@ export function AppointmentForm({
   const [patientSuggestions, setPatientSuggestions] = useState<Pick<Patient, "id" | "full_name" | "phone">[]>([]);
   const [selectedPatientName, setSelectedPatientName] = useState(defaultPatientName ?? "");
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendarRef = useRef<HTMLDivElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
+      setCalendarOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (calendarOpen) document.addEventListener("mousedown", handleClickOutside);
+    else document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [calendarOpen, handleClickOutside]);
 
   const {
     register,
@@ -205,26 +217,25 @@ export function AppointmentForm({
       )}
 
       {/* Date */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 relative">
         <Label>{t("date")}</Label>
         <input type="hidden" {...register("scheduled_date")} />
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={cn(
-                "flex h-9 w-full items-center gap-2 rounded-md border px-3 py-2 text-sm text-left",
-                "bg-white border-gray-200 hover:bg-gray-50 transition-colors",
-                !scheduledDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="h-4 w-4 opacity-50" />
-              {scheduledDate
-                ? format(new Date(scheduledDate + "T00:00:00"), "dd/MM/yyyy")
-                : t("date")}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+        <button
+          type="button"
+          className={cn(
+            "flex h-9 w-full items-center gap-2 rounded-md border px-3 py-2 text-sm text-left",
+            "bg-white border-gray-200 hover:bg-gray-50 transition-colors",
+            !scheduledDate && "text-muted-foreground"
+          )}
+          onClick={() => setCalendarOpen((o) => !o)}
+        >
+          <CalendarIcon className="h-4 w-4 opacity-50" />
+          {scheduledDate
+            ? format(new Date(scheduledDate + "T00:00:00"), "dd/MM/yyyy")
+            : t("date")}
+        </button>
+        {calendarOpen && (
+          <div ref={calendarRef} className="absolute left-0 top-full mt-1 z-[9999] rounded-md border bg-white shadow-lg">
             <Calendar
               mode="single"
               selected={scheduledDate ? new Date(scheduledDate + "T00:00:00") : undefined}
@@ -234,8 +245,8 @@ export function AppointmentForm({
               }}
               initialFocus
             />
-          </PopoverContent>
-        </Popover>
+          </div>
+        )}
         {errors.scheduled_date && (
           <p className="text-xs text-red-600">{errors.scheduled_date.message}</p>
         )}
